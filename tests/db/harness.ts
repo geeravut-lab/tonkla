@@ -8,7 +8,7 @@ export const UUID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart
 const SUPABASE_SHIM = `
   create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
   create schema auth;
-  create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}'::jsonb, raw_user_meta_data jsonb not null default '{}'::jsonb, created_at timestamptz not null default now());
+  create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}'::jsonb, raw_user_meta_data jsonb not null default '{}'::jsonb, email_confirmed_at timestamptz, created_at timestamptz not null default now());
   create function auth.uid() returns uuid language sql stable as $$ select (nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub')::uuid $$;
   create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
   grant usage on schema public, auth to anon, authenticated, service_role;
@@ -70,7 +70,7 @@ export async function createDb() {
   }
 
   async function addUser(id: string, email = `${id}@example.test`) {
-    await db.query("insert into auth.users (id, email) values ($1, $2) on conflict do nothing", [id, email]);
+    await db.query("insert into auth.users (id, email, email_confirmed_at) values ($1, $2, now()) on conflict do nothing", [id, email]);
   }
 
   /** Expect a statement to be rejected (permission denied / RLS violation / constraint). */
