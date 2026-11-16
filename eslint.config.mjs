@@ -12,7 +12,7 @@ export default defineConfig([
     files: ["src/**/*.{ts,tsx}"],
     rules: {
       // No hard-coded UI text: everything goes through the dictionary.
-      "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: ["·", "•", "/", "(", ")", "-", "—", "|", "…", ":", "⚠", "✓", "→"], ignoreProps: true }],
+      "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: ["·", "•", "/", "(", ")", "-", "—", "|", "…", ":", "⚠", "✓", "→", "👍", "📌"], ignoreProps: true }],
       // Work-doing controls must use the shared components (spinner + double-press lock).
       "no-restricted-syntax": [
         "error",

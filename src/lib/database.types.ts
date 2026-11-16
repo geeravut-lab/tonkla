@@ -32,6 +32,179 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_audiences: {
+        Row: {
+          announcement_id: string
+          audience_type: string
+          target_id: string | null
+        }
+        Insert: {
+          announcement_id: string
+          audience_type: string
+          target_id?: string | null
+        }
+        Update: {
+          announcement_id?: string
+          audience_type?: string
+          target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_audiences_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_comments: {
+        Row: {
+          announcement_id: string
+          author_id: string
+          body: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+        }
+        Insert: {
+          announcement_id: string
+          author_id: string
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+        }
+        Update: {
+          announcement_id?: string
+          author_id?: string
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_comments_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_receipts: {
+        Row: {
+          acked_at: string | null
+          announcement_id: string
+          delivered_at: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          acked_at?: string | null
+          announcement_id: string
+          delivered_at?: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          acked_at?: string | null
+          announcement_id?: string
+          delivered_at?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_receipts_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_receipts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          ack_due_at: string | null
+          author_id: string
+          body: string
+          company_id: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          kind: string
+          pinned: boolean
+          publish_at: string | null
+          requires_ack: boolean
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ack_due_at?: string | null
+          author_id: string
+          body?: string
+          company_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          kind?: string
+          pinned?: boolean
+          publish_at?: string | null
+          requires_ack?: boolean
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ack_due_at?: string | null
+          author_id?: string
+          body?: string
+          company_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          kind?: string
+          pinned?: boolean
+          publish_at?: string | null
+          requires_ack?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -478,6 +651,50 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          dedupe_key: string
+          href: string
+          id: string
+          kind: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          dedupe_key: string
+          href?: string
+          id?: string
+          kind: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          dedupe_key?: string
+          href?: string
+          id?: string
+          kind?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_admins: {
         Row: {
           granted_at: string
@@ -605,6 +822,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reactions: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          kind?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_assignments: {
         Row: {
@@ -748,6 +997,7 @@ export type Database = {
       }
     }
     Functions: {
+      ack_announcement: { Args: { p_id: string }; Returns: undefined }
       admin_analytics: { Args: { p_days?: number }; Returns: Json }
       admin_create_bu: {
         Args: { p_name_en?: string; p_name_th: string }
@@ -772,6 +1022,16 @@ export type Database = {
         Args: { p_id: string; p_sla: number; p_status: string }
         Returns: undefined
       }
+      announcement_readership: {
+        Args: { p_id: string }
+        Returns: {
+          acked_at: string
+          display_name: string
+          read_at: string
+          user_id: string
+        }[]
+      }
+      archive_announcement: { Args: { p_id: string }; Returns: undefined }
       claim_roster: { Args: never; Returns: number }
       create_invitation: {
         Args: { p_company: string; p_ttl_hours?: number }
@@ -804,6 +1064,9 @@ export type Database = {
           name_th: string
         }[]
       }
+      mark_announcement_read: { Args: { p_id: string }; Returns: undefined }
+      mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
+      publish_announcement: { Args: { p_id: string }; Returns: number }
       redeem_invitation: { Args: { p_code: string }; Returns: string }
       request_join: {
         Args: { p_company: string; p_note?: string }

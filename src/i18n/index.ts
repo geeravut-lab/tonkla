@@ -1,11 +1,12 @@
 import * as core from "./dict/core";
 import * as identity from "./dict/identity";
 import * as admin from "./dict/admin";
+import * as comm from "./dict/comm";
 
 // Add a module here when a milestone adds a dictionary file.
-const modules = [core, identity, admin];
+const modules = [core, identity, admin, comm];
 
-type ThAll = typeof core.th & typeof identity.th & typeof admin.th;
+type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th;
 export type Dict = { [K in keyof ThAll]: string };
 export type DictKey = keyof Dict;
 export type Locale = "th" | "en";

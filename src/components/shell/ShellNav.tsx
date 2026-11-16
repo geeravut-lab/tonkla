@@ -11,10 +11,19 @@ import { LocaleSwitch } from "./LocaleSwitch";
 import { SignOut } from "./SignOut";
 import type { NavItem } from "@/config/nav";
 
-type Props = { items?: readonly NavItem[] };
+type Props = { items?: readonly NavItem[]; badges?: Record<string, number> };
+
+function Badge({ n }: { n: number }) {
+  if (!n) return null;
+  return (
+    <span className="ml-auto grid min-w-6 place-items-center rounded-full bg-sun px-1.5 text-xs font-bold text-ink tabular-nums" data-testid="badge">
+      {n > 99 ? "99+" : n}
+    </span>
+  );
+}
 
 /** Desktop sidebar (md and up). Only the middle list scrolls; header and footer stay visible. */
-export function Sidebar({ items = NAV }: Props) {
+export function Sidebar({ items = NAV, badges = {} }: Props) {
   const pathname = usePathname();
   const t = useT();
   return (
@@ -39,6 +48,7 @@ export function Sidebar({ items = NAV }: Props) {
                   className={`flex min-h-11 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-mint font-bold text-primary-hover" : "text-ink hover:bg-bg"}`}
                 >
                   {t[it.label]}
+                  <Badge n={badges[it.key] ?? 0} />
                 </PendingLink>
               </li>
             );
@@ -54,7 +64,7 @@ export function Sidebar({ items = NAV }: Props) {
 }
 
 /** Phone bottom bar: 4 main items + a "More" button that opens a bottom sheet. */
-export function BottomBar({ items = NAV }: Props) {
+export function BottomBar({ items = NAV, badges = {} }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useT();
@@ -151,7 +161,10 @@ export function BottomBar({ items = NAV }: Props) {
           aria-haspopup="dialog"
           className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-control text-xs ${moreActive || open ? "font-bold text-primary-hover" : "font-medium text-muted"}`}
         >
-          <Icon name="more" />
+          <span className="relative">
+            <Icon name="more" />
+            {more.some((i) => (badges[i.key] ?? 0) > 0) ? <span aria-hidden="true" className="absolute -top-1 -right-2 size-2.5 rounded-full bg-sun" /> : null}
+          </span>
           {t.nav_more}
         </button>
       </nav>
@@ -188,6 +201,7 @@ export function BottomBar({ items = NAV }: Props) {
                         >
                           <Icon name={it.icon} />
                           {t[it.label]}
+                          <Badge n={badges[it.key] ?? 0} />
                         </a>
                       </li>
                     );

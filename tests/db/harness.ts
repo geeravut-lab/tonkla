@@ -11,6 +11,9 @@ const SUPABASE_SHIM = `
   create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}'::jsonb, raw_user_meta_data jsonb not null default '{}'::jsonb, email_confirmed_at timestamptz, created_at timestamptz not null default now());
   create function auth.uid() returns uuid language sql stable as $$ select (nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub')::uuid $$;
   create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
+  create schema realtime;
+  create table realtime.sent (id serial primary key, topic text, event text, payload jsonb);
+  create function realtime.send(payload jsonb, event text, topic text, private boolean default true) returns void language sql as $$ insert into realtime.sent (topic, event, payload) values (topic, event, payload) $$;
   grant usage on schema public, auth to anon, authenticated, service_role;
   grant select on auth.users to service_role;
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
