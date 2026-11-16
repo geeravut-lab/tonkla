@@ -8,6 +8,7 @@ import { PendingLink } from "@/components/ui/PendingLink";
 import { navStore } from "@/components/ui/nav-store";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { LocaleSwitch } from "./LocaleSwitch";
+import { SignOut } from "./SignOut";
 import type { NavItem } from "@/config/nav";
 
 type Props = { items?: readonly NavItem[] };
@@ -44,8 +45,9 @@ export function Sidebar({ items = NAV }: Props) {
           })}
         </ul>
       </nav>
-      <div className="border-t border-line p-3">
+      <div className="flex flex-col gap-2 border-t border-line p-3">
         <LocaleSwitch />
+        <SignOut />
       </div>
     </aside>
   );
@@ -165,7 +167,7 @@ export function BottomBar({ items = NAV }: Props) {
               </button>
             </div>
             <div className="relative min-h-0 flex-1">
-              <div ref={scroller} onScroll={measure} className="max-h-[calc(85dvh-9rem)] overflow-y-auto overscroll-contain px-3 pb-2">
+              <div ref={scroller} onScroll={measure} className="max-h-[calc(85dvh-13rem)] overflow-y-auto overscroll-contain px-3 pb-2">
                 <ul className="flex flex-col gap-1">
                   {more.map((it) => {
                     const active = isActive(pathname, it.href);
@@ -203,8 +205,9 @@ export function BottomBar({ items = NAV }: Props) {
                 </button>
               ) : null}
             </div>
-            <div className="border-t border-line p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <div className="flex flex-col gap-2 border-t border-line p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <LocaleSwitch />
+              <SignOut />
             </div>
           </div>
         </div>

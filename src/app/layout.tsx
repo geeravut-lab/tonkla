@@ -2,23 +2,27 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "@/styles/app.css";
 import { I18nProvider } from "@/i18n/client";
-import { dictFor } from "@/i18n";
-import { getLocale } from "@/i18n/server";
+import { getDict, getLocale } from "@/i18n/server";
 import { THEME_COLOR } from "@/config/brand";
+import { BrandProvider } from "@/components/ui/BrandContext";
 import { NavigationFeedback } from "@/components/ui/NavigationFeedback";
+import { brandUrls, getBrand } from "@/server/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = dictFor(await getLocale());
+  const [t, brand] = await Promise.all([getDict(), getBrand()]);
+  const urls = brandUrls(brand);
   return {
     title: { default: `${t.app_name} · ${t.app_name_th}`, template: `%s · ${t.app_name}` },
     description: t.app_tagline,
     applicationName: t.app_name,
     icons: {
-      icon: [
-        { url: "/brand/favicon.svg", type: "image/svg+xml" },
-        { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
-      ],
-      apple: "/brand/apple-touch-icon.png",
+      icon: brand.icon
+        ? [{ url: urls.icon("favicon"), type: "image/png" }]
+        : [
+            { url: urls.icon("favicon"), type: "image/svg+xml" },
+            { url: urls.icon("favicon-32"), sizes: "32x32", type: "image/png" },
+          ],
+      apple: urls.icon("apple-icon"),
     },
   };
 }
@@ -26,13 +30,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = { themeColor: THEME_COLOR, width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const locale = await getLocale();
+  const [locale, t, brand] = await Promise.all([getLocale(), getDict(), getBrand()]);
   return (
     <html lang={locale}>
       <body>
-        <I18nProvider t={dictFor(locale)} locale={locale}>
-          <NavigationFeedback />
-          {children}
+        <I18nProvider t={t} locale={locale}>
+          <BrandProvider logoUrl={brandUrls(brand).logo}>
+            <NavigationFeedback />
+            {children}
+          </BrandProvider>
         </I18nProvider>
       </body>
     </html>

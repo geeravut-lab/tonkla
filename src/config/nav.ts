@@ -8,7 +8,7 @@ export type NavItem = {
   icon: IconName;
   /** "bar" = bottom bar on phones (max 4); "more" = inside the More sheet. Desktop sidebar shows both. */
   placement: "bar" | "more";
-  /** Roles that see the item. Omit = everyone. Filled in as milestones add role menus. */
+  /** Capabilities that see the item (any of). Omit = everyone. */
   roles?: readonly string[];
 };
 
@@ -21,7 +21,14 @@ export const NAV: readonly NavItem[] = [
   { key: "inbox", href: "/inbox", label: "nav_inbox", icon: "bell", placement: "more" },
   { key: "directory", href: "/directory", label: "nav_directory", icon: "users", placement: "more" },
   { key: "account", href: "/account", label: "nav_account", icon: "user", placement: "more" },
+  { key: "desk", href: "/desk", label: "nav_desk", icon: "shield", placement: "more", roles: ["coordinator"] },
+  { key: "admin", href: "/admin", label: "nav_admin", icon: "settings", placement: "more", roles: ["admin"] },
 ];
+
+/** Menu items a person may see (the server still checks every page and action itself). */
+export function navFor(held: ReadonlySet<string>): readonly NavItem[] {
+  return NAV.filter((n) => !n.roles || n.roles.some((r) => held.has(r)));
+}
 
 export function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");

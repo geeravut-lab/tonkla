@@ -1,5 +1,13 @@
-/** Default Tonkla mark. Replaced by the admin-uploaded logo from M1.2 (/brand/logo). */
+"use client";
+import { useBrandLogo } from "./BrandContext";
+
+/** The platform mark: the admin-uploaded logo when there is one, otherwise the built-in Tonkla mark. */
 export function LogoMark({ size = 40, title }: { size?: number; title?: string }) {
+  const custom = useBrandLogo();
+  if (custom) {
+    // eslint-disable-next-line @next/next/no-img-element -- served by our own versioned /brand/logo route; no image optimiser needed
+    return <img src={custom} width={size} height={size} alt={title ?? ""} aria-hidden={title ? undefined : true} className="object-contain" style={{ width: size, height: size }} />;
+  }
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width={size} height={size} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <rect width="120" height="120" rx="28" fill="var(--tk-primary)" />

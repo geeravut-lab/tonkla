@@ -6,6 +6,7 @@ const PARENTS: readonly { pattern: RegExp; parent: string; label: DictKey }[] = 
   { pattern: /^\/reports\/[^/]+$/, parent: "/reports", label: "nav_reports" },
   { pattern: /^\/ideas\/[^/]+$/, parent: "/ideas", label: "nav_ideas" },
   { pattern: /^\/account\/[^/]+$/, parent: "/account", label: "nav_account" },
+  { pattern: /^\/admin\/[^/]+$/, parent: "/admin", label: "nav_admin" },
 ];
 
 /** Pages reachable from several places may carry ?from=<key>; only keys listed here are honoured. */

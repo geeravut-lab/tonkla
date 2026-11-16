@@ -211,3 +211,36 @@ describe("analytics and consent", () => {
     expect(await h.denied(U.alice, "select * from public.company_features")).toMatch(/permission denied/);
   });
 });
+
+describe("analytics and templates", () => {
+  it("only admins can read the usage dashboard", async () => {
+    expect(await h.denied(U.alice, "select public.admin_analytics(7)")).toMatch(/err_forbidden/);
+    const r = await h.as(U.frank, async (q) => (await q<{ admin_analytics: { dau: number; daily: unknown[] } }>("select public.admin_analytics(7)")).rows[0]!.admin_analytics);
+    expect(typeof r.dau).toBe("number");
+    expect(Array.isArray(r.daily)).toBe(true);
+  });
+  it("company templates are visible to central team only", async () => {
+    expect((await h.as(U.alice, async (q) => (await q("select * from public.company_templates")).rows.length))).toBe(0);
+    expect((await h.as(U.erin, async (q) => (await q("select * from public.company_templates")).rows.length)) > 0).toBe(true);
+  });
+});
+
+describe("platform admin company operations", () => {
+  it("only platform admins can create companies or business units", async () => {
+    expect(await h.denied(U.carol, "select public.admin_create_company('x-co','X','X',null,null)")).toMatch(/err_forbidden/);
+    expect(await h.denied(U.erin, "select public.admin_create_bu('กลุ่มใหม่')")).toMatch(/err_forbidden/); // central team is not a platform admin
+    const id = await h.asCommit(U.frank, async (q) => (await q<{ admin_create_company: string }>("select public.admin_create_company('new-co','บริษัทใหม่','New Co',$1,(select id from public.company_templates limit 1))", [BU])).rows[0]!.admin_create_company);
+    const row = await h.db.query<{ response_sla_hours: number }>("select response_sla_hours from public.companies where id = $1", [id]);
+    expect(row.rows[0]!.response_sla_hours).toBe(48);
+  });
+  it("rejects bad company codes and SLA values", async () => {
+    expect(await h.denied(U.frank, "select public.admin_create_company('Bad Code!','X','X',null,null)")).toMatch(/err_invalid_input/);
+    expect(await h.denied(U.frank, "select public.admin_update_company($1,'active',0)", [A])).toMatch(/err_invalid_input/);
+  });
+  it("the first coordinator can be seated only from a verified, existing account", async () => {
+    expect(await h.denied(U.frank, "select public.admin_set_coordinator($1,'ghost@nowhere.test')", [A])).toMatch(/err_no_such_account/);
+    await h.asCommit(U.frank, async (q) => q("select public.admin_set_coordinator($1,'alice@example.test')", [A]));
+    expect((await h.as(U.alice, async (q) => (await q("select * from public.role_assignments where user_id = $1 and role = 'coordinator'", [U.alice])).rows.length))).toBe(1);
+    await h.admin((q) => q("delete from public.role_assignments where user_id = $1 and role = 'coordinator'", [U.alice]));
+  });
+});

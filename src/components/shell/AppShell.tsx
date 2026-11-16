@@ -1,16 +1,22 @@
 import type { ReactNode } from "react";
 import { getDict } from "@/i18n/server";
+import { navFor } from "@/config/nav";
+import { requireActive } from "@/lib/session";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { BackLink } from "./BackLink";
 import { BottomBar, Sidebar } from "./ShellNav";
 
 export async function AppShell({ children }: { children: ReactNode }) {
-  const t = await getDict();
+  const [t, session] = await Promise.all([getDict(), requireActive()]);
+  const held = new Set<string>();
+  if (session.coordinatedCompanies.length) held.add("coordinator");
+  if (session.isAdmin) held.add("admin");
+  const items = navFor(held);
   return (
     <div className="flex min-h-dvh">
       <SkipLink label={t.skip_to_content} />
-      <Sidebar />
+      <Sidebar items={items} />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3 md:hidden">
           <LogoMark size={36} />
@@ -24,7 +30,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-      <BottomBar />
+      <BottomBar items={items} />
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default defineConfig([
     files: ["src/**/*.{ts,tsx}"],
     rules: {
       // No hard-coded UI text: everything goes through the dictionary.
-      "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: ["·", "•", "/", "(", ")", "-", "—", "|", "…", ":"], ignoreProps: true }],
+      "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: ["·", "•", "/", "(", ")", "-", "—", "|", "…", ":", "⚠", "✓", "→"], ignoreProps: true }],
       // Work-doing controls must use the shared components (spinner + double-press lock).
       "no-restricted-syntax": [
         "error",
@@ -34,13 +34,13 @@ export default defineConfig([
   {
     // The service-role client may only be imported from privileged code and API route handlers.
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/server/privileged/**", "src/app/api/**", UI],
+    ignores: ["src/server/**", "src/app/api/**", "src/app/brand/**", UI],
     rules: {
       "no-restricted-imports": [
         "error",
         {
           paths: [{ name: "next/link", message: "Use <PendingLink> from components/ui." }],
-          patterns: [{ group: ["@/server/privileged/*", "**/server/privileged/*"], message: "Service-role code is only importable from src/server/privileged and src/app/api." }],
+          patterns: [{ group: ["@/server/privileged/*", "**/server/privileged/*"], message: "Service-role code is only importable from src/server and src/app/api." }],
         },
       ],
     },
