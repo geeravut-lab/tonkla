@@ -51,7 +51,7 @@
 | i18n | พจนานุกรม `dict.ts` ไทยเป็นต้นฉบับ + `en satisfies Dict` (คอมไพเลอร์บังคับให้แปลครบ) · server คืนรหัส `err_*` | I18N-KNOWLEDGE · ตรงกับกฎ "ห้าม hard-code ข้อความ" | ไลบรารี i18n ที่ key ขาดแล้วไม่พัง build |
 | ทดสอบ | Vitest (unit) · **PGlite** (Postgres จริงใน Node) ทดสอบ RLS ทุกกฎ · Playwright + axe ที่ 390×844 และ 1280×800 | "ทุกกฎสิทธิ์ต้องมีเทส" | — |
 | CI/CD | GitHub Actions (lint, typecheck, unit, RLS, e2e บน `next start` ในเครื่อง CI) → merge `main` → Vercel production | ไม่มี preview deploy จึงใช้ CI เป็นด่านตรวจ | Preview deployments |
-| ภูมิภาค | Vercel function ตั้ง region ให้ใกล้ Supabase (ตรวจ region โปรเจกต์ตอนได้สิทธิ์) | ข้ามทวีป ≈230 ms ต่อ query (บทเรียน RooSuk) | — |
+| ภูมิภาค | Supabase อยู่ **ap-southeast-2 (ซิดนีย์)** (ตรวจแล้ว 16 พ.ย.) → ตั้ง Vercel function region เป็น `syd1` ให้ใกล้ฐานข้อมูล (ผู้ใช้ในไทยจะมี latency ไปซิดนีย์ ~100–150 ms ต่อรอบ จึงต้องลดจำนวน round trip: ฟังก์ชัน SQL เรียกเดียวต่อหน้า) · ย้าย region ภายหลังทำได้ยาก ถ้าต้องการสิงคโปร์ต้องตัดสินใจก่อนมีข้อมูลจริง **[D15]** | ข้ามทวีป ≈230 ms ต่อ query (บทเรียน RooSuk) | — |
 
 **ข้อควรรู้เรื่องแพ็กเกจ Vercel [D2]:** Hobby ห้ามใช้เชิงพาณิชย์ตามเงื่อนไขของ Vercel และจำกัด cron ถ้าเป็นระบบของกลุ่มบริษัทแนะนำ **Pro** (ตรวจเงื่อนไขล่าสุดกับ Vercel อีกครั้ง) · ที่ออกแบบ cron ผ่าน `pg_cron` ก็เพื่อไม่ผูกกับแพ็กเกจ
 
@@ -278,15 +278,16 @@
 | D11 | อีเมลของเจ้าของ/แอดมินคนแรก (บัญชีที่ถอดสิทธิ์ไม่ได้) | ระบุเมื่อพร้อม — เก็บใน env ไม่ใส่ใน repo |
 | D12 | ลงทะเบียน `tonkla` เป็นแอปลูกที่ Aivora hub + ยืนยัน callback | เจ้าของ hub ทำ (ผมทำแทนไม่ได้) |
 | D13 | LINE OA | ใช้ OA เดียวทั้งกลุ่ม · ตรวจแพ็กเกจ/โควตาข้อความ |
+| D15 | Region ฐานข้อมูล | ตอนนี้ซิดนีย์ (ap-southeast-2) · ถ้าต้องการสิงคโปร์ให้ย้ายก่อนมีข้อมูลจริง (ยังว่างอยู่) |
 | D14 | บริษัทนำร่อง 3–5 แห่ง · จำนวนพนักงานรวม · ชื่อ domain ถาวร (ตอนนี้ใช้ `tonkla.vercel.app` ชั่วคราว) | spec §8 ค้างอยู่ |
 
 ### 11.2 สิทธิ์เข้าถึงเพื่อให้ผมดำเนินการ Supabase/Vercel แทน (R2)
 
 ตอนนี้ container นี้เรียก `*.supabase.co`, `api.supabase.com`, `api.vercel.com`, `tonkla.vercel.app` ไม่ได้ (proxy ตอบ 403) ต้อง
 
-1. **เปิดเครือข่าย**: `yfowqsfyfvzgwqdbkykx.supabase.co`, `api.supabase.com`, `api.vercel.com`, (เมื่อถึง M1.6) `api.line.me` และ `aivora-lc.netlify.app`
+1. **เครือข่าย**: `api.supabase.com` และ `api.vercel.com` เปิดแล้วพร้อมคีย์ · ที่ยังต้องเปิด: `yfowqsfyfvzgwqdbkykx.supabase.co` (ทดสอบ runtime), (เมื่อถึง M1.6) `api.line.me` และ `aivora-lc.netlify.app`
 2. **ฝากคีย์ผ่านฟอร์มปลอดภัย** (ไม่ส่งในแชต ไม่ใส่ใน repo): Supabase personal access token (+ service role key ซึ่งดึงผ่าน Management API ได้) · Vercel token (+ team/project) · ตอน M1.6: LINE channel secret/token/basic ID · ตอน M1.8: คีย์ AI
-3. Vercel project เชื่อม GitHub repo `geeravut-lab/tonkla` แล้วหรือยัง (ถ้ายัง ให้เจ้าของกด Import ครั้งเดียว หรือให้ token ที่มีสิทธิ์สร้าง)
+3. ✅ ฝากคีย์ Supabase และ Vercel แล้ว (16 พ.ย.) และตรวจแล้วว่าใช้ได้: Supabase โปรเจกต์ `tonkla` สถานะ ACTIVE_HEALTHY · Vercel มีโปรเจกต์ `tonkla` ผูกกับ repo `geeravut-lab/tonkla` แล้ว (ยังต้องตั้ง production-only ตอน M1.1)
 4. Supabase Auth → URL Configuration: Site URL = `https://tonkla.vercel.app` และ Redirect URLs ที่ระบุใน §5
 
 ---
