@@ -1,0 +1,33 @@
+/* The only file allowed to contain colour literals (scripts/check-no-hex.mjs).
+   Names follow roles, not colours, so a dark theme can be added later. */
+:root {
+  --tk-bg: #f4faf6;
+  --tk-surface: #ffffff;
+  --tk-ink: #10282b;
+  --tk-muted: #506468;
+
+  --tk-primary: #0e7a5c;
+  --tk-primary-hover: #0a6149;
+  --tk-primary-pressed: #084c3a;
+
+  --tk-leaf: #5bc98f;
+  --tk-sprout: #b8ebcf;
+  --tk-sun: #ffb84d;
+  --tk-mint: #ddf5e8;
+
+  --tk-line: #dce8e2;
+  --tk-field-border: #6c8780;
+
+  --tk-success-bg: #ddf5e8;
+  --tk-success-fg: #0a6149;
+  --tk-warning-bg: #ffe9b8;
+  --tk-warning-fg: #10282b;
+  --tk-danger-bg: #fde4e1;
+  --tk-danger-fg: #b42318;
+  --tk-info-bg: #e4eef3;
+  --tk-info-fg: #1d4a5e;
+  --tk-disabled-bg: #edf2ef;
+  --tk-disabled-fg: #7a8c88;
+
+  --tk-shadow: 0 1px 2px rgb(16 40 43 / 0.06), 0 6px 20px rgb(16 40 43 / 0.07);
+}

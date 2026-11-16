@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/noto-sans-thai";
+@import "./theme.css";
+
+@theme inline {
+  --color-bg: var(--tk-bg);
+  --color-surface: var(--tk-surface);
+  --color-ink: var(--tk-ink);
+  --color-muted: var(--tk-muted);
+  --color-primary: var(--tk-primary);
+  --color-primary-hover: var(--tk-primary-hover);
+  --color-primary-pressed: var(--tk-primary-pressed);
+  --color-leaf: var(--tk-leaf);
+  --color-sprout: var(--tk-sprout);
+  --color-sun: var(--tk-sun);
+  --color-mint: var(--tk-mint);
+  --color-line: var(--tk-line);
+  --color-field-border: var(--tk-field-border);
+  --color-success-bg: var(--tk-success-bg);
+  --color-success-fg: var(--tk-success-fg);
+  --color-warning-bg: var(--tk-warning-bg);
+  --color-warning-fg: var(--tk-warning-fg);
+  --color-danger-bg: var(--tk-danger-bg);
+  --color-danger-fg: var(--tk-danger-fg);
+  --color-info-bg: var(--tk-info-bg);
+  --color-info-fg: var(--tk-info-fg);
+  --color-disabled-bg: var(--tk-disabled-bg);
+  --color-disabled-fg: var(--tk-disabled-fg);
+  --shadow-card: var(--tk-shadow);
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --font-sans: "Geist Variable", "Noto Sans Thai Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--tk-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--tk-bg);
+  color: var(--tk-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem; /* 16px: also stops iOS zooming into inputs */
+  line-height: 1.6; /* Thai needs generous leading */
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--tk-primary);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .tk-btn {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    border-radius: var(--radius-control);
+    padding: 0 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  .tk-btn-primary {
+    background: var(--tk-primary);
+    color: var(--tk-surface);
+  }
+  .tk-btn-primary:hover:not(:disabled) {
+    background: var(--tk-primary-hover);
+  }
+  .tk-btn-primary:active:not(:disabled) {
+    background: var(--tk-primary-pressed);
+  }
+  .tk-btn-secondary {
+    background: var(--tk-surface);
+    color: var(--tk-primary);
+    box-shadow: inset 0 0 0 2px var(--tk-field-border);
+  }
+  .tk-btn-sun {
+    background: var(--tk-sun);
+    color: var(--tk-ink);
+  }
+  .tk-btn[aria-busy="true"] {
+    cursor: progress;
+  }
+  .tk-btn:disabled:not([aria-busy="true"]) {
+    background: var(--tk-disabled-bg);
+    color: var(--tk-disabled-fg);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .tk-card {
+    background: var(--tk-surface);
+    border: 1px solid var(--tk-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--tk-shadow);
+  }
+}
+
+/* Loading spinner: currentColor so it works on every button colour */
+.tk-spinner {
+  display: inline-block;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+  border-radius: 9999px;
+  border: 3px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top-color: currentColor;
+  animation: tk-spin 0.8s linear infinite;
+}
+@keyframes tk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tk-nav-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-spinner {
+    animation-duration: 2.4s;
+  }
+}

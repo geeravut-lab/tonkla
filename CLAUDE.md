@@ -6,19 +6,19 @@ Read `docs/spec.md` before doing anything. It is the source of truth for scope, 
 
 ## Current state
 
-Greenfield. No application code yet. The tech stack, data model, UX/UI and all-phase build plan have been **proposed and are awaiting the owner's approval**:
+Greenfield. No application code yet. The tech stack, data model, UX/UI and all-phase build plan were **approved by the owner on 16 Nov 2026** (all of D1–D15 as recommended; Microsoft 365 login is deferred; app URL is https://tonkla-th.vercel.app):
 
 - `docs/TONKLA-PLAN-KNOWLEDGE.md` (stack, architecture, phases, decisions D1–D14)
 - `docs/TONKLA-DATA-MODEL-KNOWLEDGE.md` (tables, RLS, minimum permission tests)
 - `docs/TONKLA-UX-UI-KNOWLEDGE.md` and `docs/design/` (look and feel, logo, favicon, preview page)
 
-Do not scaffold or write application code until the owner approves. After approval, build milestone by milestone as listed in the plan (M1.1 first).
+Build milestone by milestone as listed in the plan (M1.1 first). Do not start a later milestone's work until the owner asks.
 
 `docs/Knowledge-Index.md` indexes the knowledge files copied from RooSuk and ThaiPass. They describe proven patterns and the bugs that came with them; the plan (section 9) says which Tonkla feature uses each one. Read the knowledge file for a feature before building it.
 
 ## Infrastructure (set by the owner)
 
-- Hosting: Vercel, **production deployments only**. No preview deployments. Production URL: https://tonkla.vercel.app (provisional until the owner picks a domain).
+- Hosting: Vercel, **production deployments only**. No preview deployments. Production URL: https://tonkla-th.vercel.app (provisional until the owner picks a domain).
 - Backend: Supabase project `https://yfowqsfyfvzgwqdbkykx.supabase.co` for Auth, Database and Storage. This is the only project, so it is production: every schema change is a migration file, destructive changes are done in two steps and need the owner's approval first.
 - Code: https://github.com/geeravut-lab/tonkla. Work on a branch, verify with CI, merge to `main` to deploy.
 - The owner has asked Claude to operate Supabase and Vercel on their behalf. That needs network access to those hosts and credentials saved through the secure credential form. Never ask for secrets in chat, never write them to the repo, logs or docs, and never put them behind a `NEXT_PUBLIC_` name.

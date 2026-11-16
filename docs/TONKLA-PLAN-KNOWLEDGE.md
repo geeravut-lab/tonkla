@@ -1,6 +1,6 @@
 # Knowledge: Tonkla — Tech stack, สถาปัตยกรรม และแผนสร้างทุกเฟส (ข้อเสนอรออนุมัติ)
 
-สถานะ: **ข้อเสนอ ยังไม่อนุมัติ ยังไม่มีโค้ด** · เขียนเมื่อ 16 พ.ย. 2026 · เจ้าของโครงการอนุมัติแล้วจึงเริ่ม scaffold
+สถานะ: **เจ้าของอนุมัติแล้ว (16 พ.ย. 2026)** ตาม D1–D15 ทุกข้อตามข้อเสนอแนะ **ยกเว้น Microsoft 365 ยังไม่ต้องทำ** และ URL ของแอปใช้ `https://tonkla-th.vercel.app` · เริ่มสร้างที่ M1.1
 
 ไฟล์คู่กัน: [TONKLA-DATA-MODEL-KNOWLEDGE.md](./TONKLA-DATA-MODEL-KNOWLEDGE.md) · [TONKLA-UX-UI-KNOWLEDGE.md](./TONKLA-UX-UI-KNOWLEDGE.md) · [spec.md](./spec.md) · ตัวอย่างหน้าตา [design/brand-preview.html](./design/brand-preview.html)
 
@@ -12,7 +12,7 @@
 
 | # | คำสั่ง | อยู่ที่ |
 | - | --- | --- |
-| R1 | Deploy บน **Vercel เฉพาะ production** (ไม่ทำ preview deploy) ที่ https://tonkla.vercel.app | §6 · M1.1 |
+| R1 | Deploy บน **Vercel เฉพาะ production** (ไม่ทำ preview deploy) ที่ https://tonkla-th.vercel.app | §6 · M1.1 |
 | R2 | **Supabase** (Auth + Database + Storage) โปรเจกต์ `yfowqsfyfvzgwqdbkykx` · โค้ดอยู่ GitHub `geeravut-lab/tonkla` · ให้ Claude ดำเนินการบน Supabase/Vercel แทนได้ | §6, §11 (ต้องเปิดสิทธิ์) |
 | R3 | เสนอ tech stack, data model, แผนทุกเฟส ให้อนุมัติก่อนเขียนโค้ด และบันทึกเป็นไฟล์ Knowledge | ไฟล์ชุดนี้ |
 | R4 | ออกแบบ UX/UI (ปลอดโปร่ง ปลอดภัย เหมาะกับ Innovative Portal) + โลโก้ + Favicon | [TONKLA-UX-UI-KNOWLEDGE.md](./TONKLA-UX-UI-KNOWLEDGE.md), `docs/design/` |
@@ -100,8 +100,8 @@
 
 | ช่องทาง | วิธี | ผูกบัญชี | หมายเหตุ |
 | --- | --- | --- | --- |
-| Google Workspace | Supabase OAuth `google` (เจ้าของตั้งค่าแล้ว) | Supabase ผูก identity ที่อีเมลยืนยันแล้วให้ | ต้องเพิ่ม redirect URL `https://tonkla.vercel.app/auth/callback` ใน Supabase |
-| Microsoft 365 | Supabase OAuth `azure` (ต้องลงทะเบียนแอปใน Microsoft Entra) **[D3]** | เหมือนกัน | ถ้าแต่ละบริษัทอยู่คนละ tenant ใช้แอปแบบ multi-tenant |
+| Google Workspace | Supabase OAuth `google` (เจ้าของตั้งค่าแล้ว) | Supabase ผูก identity ที่อีเมลยืนยันแล้วให้ | ต้องเพิ่ม redirect URL `https://tonkla-th.vercel.app/auth/callback` ใน Supabase |
+| ~~Microsoft 365~~ | **เลื่อนไม่กำหนด** (เจ้าของสั่งยังไม่ต้องใช้) — ถ้ากลับมาทำ ใช้ Supabase OAuth `azure` + แอป Entra **[D3]** | เหมือนกัน | ถ้าแต่ละบริษัทอยู่คนละ tenant ใช้แอปแบบ multi-tenant |
 | LINE (Aivora) | ปุ่มพาไป hub → กลับ `/sso/callback?sso_ticket=…` → `/api/sso/exchange` แลกตั๋วฝั่ง server | `aivora_links(aivora_user_id → user_id)` **ไม่ผูกด้วยอีเมล** | ต้องทำตามกับดักทั้ง 8 ขั้นของ SSO doc |
 | อีเมล+รหัสผ่าน | **ปิดสมัครเอง** เปิดเฉพาะบัญชีที่แอดมินสร้าง (break-glass ของทีมกลาง) **[D9]** | — | ใช้ CHANGE-PASSWORD-KNOWLEDGE (ต้องเปลี่ยนรหัสก่อนใช้งาน) |
 
@@ -112,7 +112,7 @@
 | ค่า | ใน SSO doc (e-voa) | ของ Tonkla |
 | --- | --- | --- |
 | `APP_SLUG` | `e-voa` | `tonkla` — **ต้องให้เจ้าของ hub ลงทะเบียน slug นี้ [D12]** |
-| `CALLBACK` | `https://e-voa.vercel.app/sso/callback` | `https://tonkla.vercel.app/sso/callback` |
+| `CALLBACK` | `https://e-voa.vercel.app/sso/callback` | `https://tonkla-th.vercel.app/sso/callback` |
 | `HUB_URL` ของ SSO doc | `https://e-voa.vercel.app` | ไม่ใช่ hub จริง — ปุ่มล็อกอินและการแลกตั๋วใช้ `https://aivora-lc.netlify.app` ตามขั้นที่ 2 และ 8 (ยืนยันกับเจ้าของอีกครั้ง) |
 | `SUPABASE_URL` | โปรเจกต์ e-voa | `https://yfowqsfyfvzgwqdbkykx.supabase.co` |
 | `SUPABASE_SERVICE_ROLE` | ใน env | เก็บที่ Vercel env เท่านั้น ห้ามเข้า repo/log/`NEXT_PUBLIC_*` |
@@ -142,7 +142,7 @@
   - ตรวจ backup/PITR ของแพ็กเกจ Supabase ก่อนเปิดนำร่อง
 - ตัวแปรสภาพแวดล้อม (ค่าอยู่ที่ Vercel เท่านั้น ในไฟล์เก็บแต่ชื่อ): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `AIVORA_HUB_URL`, `AIVORA_APP_SLUG`, `LINE_CHANNEL_SECRET`, `LINE_CHANNEL_ACCESS_TOKEN`, `LINE_BASIC_ID`, `MS_ENTRA_*` (ฝั่ง Supabase), คีย์อีเมลและคีย์ AI (เมื่อถึงเวลา) — **ไม่มี `NEXT_PUBLIC_` นำหน้าความลับ**
 - ความปลอดภัย: CSP + security headers, `grep service_role|SUPABASE_SERVICE build/` ต้องไม่เจออะไร (ขั้นทดสอบของ SSO doc), secret scanning ใน GitHub, ห้ามข้อมูลพนักงานจริงใน repo/seed
-- Auth redirect ของ Supabase: เฉพาะ `https://tonkla.vercel.app/**` (ไม่มี wildcard ของ preview เพราะไม่มี preview)
+- Auth redirect ของ Supabase: เฉพาะ `https://tonkla-th.vercel.app/**` (ไม่มี wildcard ของ preview เพราะไม่มี preview)
 
 ---
 
@@ -182,8 +182,8 @@
 
 | ID | ขอบเขต | เสร็จเมื่อ | ขนาด |
 | --- | --- | --- | --- |
-| **M1.1** โครงและมาตรฐาน | scaffold Next.js 16 · token/ฟอนต์ · i18n · AppShell (sidebar/แถบล่าง/แผ่นเพิ่มเติม/BackLink/NavigationFeedback) · ชิ้นส่วน `PendingButton`/`PendingLink` + lint · migration pipeline · harness RLS (PGlite) · CI · Vercel production-only · PWA + ไอคอนเริ่มต้น · ล็อก service role ใน `privileged/` | CI เขียวครบ · `tonkla.vercel.app` ขึ้นหน้า login พร้อมโลโก้ · เทส spinner ผ่าน · `grep service_role` ใน build ไม่เจอ | M |
-| **M1.2** ตัวตน โครงสร้าง ผู้ดูแลระบบ | ตาราง org + RLS + เทส · login Google, LINE(Aivora), Microsoft **[D3]** · provisioning (CSV/รหัสเชิญ/คำขอ) · สมุดรายชื่อค้นหาได้ · บัญชีของฉัน (ภาษา, ผูก identity) · แม่แบบบริษัท + wizard สร้างบริษัท · **ผู้ดูแลระบบ** (`platform_admins`, ถอนตัวเอง/เจ้าของไม่ได้) · **สวิตช์ฟีเจอร์** (+ override รายบริษัทสำหรับทยอยเปิด) · **Audit trail** (เปิด/ปิด + ติ๊กชนิด event) · **Branding** (อัปโหลดโลโก้/ไอคอน, ค่าเริ่มต้น = โลโก้ที่ออกแบบ) · วิเคราะห์การใช้งาน (`product_events`) · ความยินยอม PDPA ครั้งแรก | ผ่านเทส SSO 3 เส้นทาง (ล็อกอินเดิม / Launcher ปกติ / Launcher ใน LINE) · เทสสิทธิ์ครบตามตารางใน DATA-MODEL §8 · ผู้ใช้ pending เห็นข้อมูลศูนย์ · อัปโหลดโลโก้แล้วเปลี่ยนทั้งแอปภายใน ~1 นาที | L |
+| **M1.1** โครงและมาตรฐาน | scaffold Next.js 16 · token/ฟอนต์ · i18n · AppShell (sidebar/แถบล่าง/แผ่นเพิ่มเติม/BackLink/NavigationFeedback) · ชิ้นส่วน `PendingButton`/`PendingLink` + lint · migration pipeline · harness RLS (PGlite) · CI · Vercel production-only · PWA + ไอคอนเริ่มต้น · ล็อก service role ใน `privileged/` | CI เขียวครบ · `tonkla-th.vercel.app` ขึ้นหน้า login พร้อมโลโก้ · เทส spinner ผ่าน · `grep service_role` ใน build ไม่เจอ | M |
+| **M1.2** ตัวตน โครงสร้าง ผู้ดูแลระบบ | ตาราง org + RLS + เทส · login Google, LINE(Aivora) (Microsoft 365 เลื่อน **[D3]**) · provisioning (CSV/รหัสเชิญ/คำขอ) · สมุดรายชื่อค้นหาได้ · บัญชีของฉัน (ภาษา, ผูก identity) · แม่แบบบริษัท + wizard สร้างบริษัท · **ผู้ดูแลระบบ** (`platform_admins`, ถอนตัวเอง/เจ้าของไม่ได้) · **สวิตช์ฟีเจอร์** (+ override รายบริษัทสำหรับทยอยเปิด) · **Audit trail** (เปิด/ปิด + ติ๊กชนิด event) · **Branding** (อัปโหลดโลโก้/ไอคอน, ค่าเริ่มต้น = โลโก้ที่ออกแบบ) · วิเคราะห์การใช้งาน (`product_events`) · ความยินยอม PDPA ครั้งแรก | ผ่านเทส SSO 3 เส้นทาง (ล็อกอินเดิม / Launcher ปกติ / Launcher ใน LINE) · เทสสิทธิ์ครบตามตารางใน DATA-MODEL §8 · ผู้ใช้ pending เห็นข้อมูลศูนย์ · อัปโหลดโลโก้แล้วเปลี่ยนทั้งแอปภายใน ~1 นาที | L |
 | **M1.3** สื่อสาร + Live sync | ประกาศเลือกผู้รับ (กลุ่ม/บริษัท/แผนก/ตำแหน่ง) · ประกาศต้องอ่าน + รับทราบ + รายงานใครยังไม่อ่าน · ฟีด + ความเห็น + ถูกใจ · สารผู้บริหาร/ข่าวความสำเร็จ · กล่องแจ้งเตือนในแอป · **LiveSync** (topic `u:`, `co:`, `central`, `adm`) + fallback | เปิดสองเครื่อง: ประกาศ/แจ้งเตือนใหม่ขึ้นอีกเครื่องใน ≤ 3 วินาทีโดยไม่ refresh · ปิด socket แล้ว fallback ยังทำงาน · ไม่ refresh ตอนกำลังพิมพ์ | L |
 | **M1.4** แจ้งปัญหา | ฟอร์มมือถือ (ถ่ายรูป/ไฟล์ตรงเข้า Storage) · หมวด/ความรุนแรง · routing → เจ้าของ · สถานะที่ผู้แจ้งเห็น + กำหนดตอบรับ (48 ชม. ปรับรายบริษัท) · ช่องทางแก้เร็ว (หัวหน้าอนุมัติ/ปิด) · **กฎอัตโนมัติ** เตือนใกล้ครบ/ยกระดับเมื่อเกินกำหนด (tick) · ปุ่ม "ฉันก็เจอ" + รวมเรื่องซ้ำ · ปิดเรื่องพร้อมผล (ตอบทุกเรื่อง แม้ปฏิเสธ ต้องมีเหตุผล) · คิวของผู้ประสานงาน | ทุกเรื่องมีเจ้าของ+กำหนดตอบเสมอ (constraint ในฐานข้อมูล) · เรื่องเกินกำหนดถูกยกระดับตาม tick และไม่ซ้ำ · ผู้แจ้งเห็นสถานะเปลี่ยนสด | L |
 | **M1.5** เสนอไอเดีย | ประเภท 4 แบบ · ฟอร์มแผนธุรกิจย่อ · 5 ระยะ (ส่ง→คัดกรอง→ประเมิน→ทดลอง→ขยายผล) · เกณฑ์ให้คะแนนเปิดเผย · ความเห็น/โหวต · ติดตามผล (เงินที่ประหยัด/เวลาที่ลด/รายได้ที่เพิ่ม) · กำหนดตอบรับเหมือนปัญหา | ไอเดียเดินครบ 5 ระยะในเทส e2e · คะแนน/โหวตกันโหวตตัวเอง/โหวตซ้ำที่ฐานข้อมูล | M |
@@ -261,13 +261,15 @@
 
 ## 11. สิ่งที่ต้องการจากเจ้าของ
 
+> **ผลการตัดสินใจ (16 พ.ย. 2026):** เจ้าของตอบรับ D1–D15 ตามข้อเสนอแนะในตารางทั้งหมด ยกเว้น D3 (ยังไม่ใช้ Microsoft 365) · URL ใช้ `https://tonkla-th.vercel.app` (Vercel ผูกโดเมนนี้กับโปรเจกต์แล้ว) · D11 (อีเมลเจ้าของ) และ D12/D13/D14 ยังต้องการข้อมูลจริงจากเจ้าของเมื่อถึง milestone ที่เกี่ยวข้อง
+
 ### 11.1 อนุมัติ/ตัดสินใจ (ข้อเสนอแนะอยู่ในวงเล็บ)
 
 | # | เรื่อง | ข้อเสนอแนะ |
 | --- | --- | --- |
 | D1 | อนุมัติ tech stack §2 | Next.js 16 + Supabase + Vercel ตามที่สั่ง |
 | D2 | แพ็กเกจ Vercel | Pro (เชิงพาณิชย์ + ทีม) · cron ผ่าน Supabase ไม่ผูกกับแพ็กเกจ |
-| D3 | Microsoft 365: ทำใน M1.2 ไหม และบริษัทอยู่ tenant เดียวหรือหลาย tenant | ทำเป็นลำดับสุดท้ายใน M1.2 (spec ระบุเฟส 1) ใช้แอป multi-tenant |
+| D3 | Microsoft 365 | **ตัดสินแล้ว: ยังไม่ต้องใช้** (เลื่อนออกจากเฟส 1 โดยเจ้าของสั่ง) |
 | D4 | รับพนักงานเข้า | รายชื่อนำเข้า + รหัสเชิญ + คำขอเข้าร่วมให้ผู้ประสานงานอนุมัติ (ไม่เปิดสมัครเอง) |
 | D5 | เพื่อนร่วมบริษัทเห็นปัญหาของกันและกันไหม | เห็นเฉพาะเรื่องของตัวเอง; ตอนส่งเรื่องแสดง "เรื่องคล้ายกัน" (หัวข้อ+สถานะ) ให้กด "ฉันก็เจอ" · **ไอเดีย** เห็นทั้งบริษัท (เพื่อความเห็น/โหวต) · spec กำกวม (§3) จึงขอยืนยัน |
 | D6 | จังหวะสร้าง AI admin | M1.8 ปิดไว้ (ตามที่สั่ง) ฟีเจอร์ AI ฝั่งพนักงานคงเฟส 3 |
@@ -279,16 +281,16 @@
 | D12 | ลงทะเบียน `tonkla` เป็นแอปลูกที่ Aivora hub + ยืนยัน callback | เจ้าของ hub ทำ (ผมทำแทนไม่ได้) |
 | D13 | LINE OA | ใช้ OA เดียวทั้งกลุ่ม · ตรวจแพ็กเกจ/โควตาข้อความ |
 | D15 | Region ฐานข้อมูล | ตอนนี้ซิดนีย์ (ap-southeast-2) · ถ้าต้องการสิงคโปร์ให้ย้ายก่อนมีข้อมูลจริง (ยังว่างอยู่) |
-| D14 | บริษัทนำร่อง 3–5 แห่ง · จำนวนพนักงานรวม · ชื่อ domain ถาวร (ตอนนี้ใช้ `tonkla.vercel.app` ชั่วคราว) | spec §8 ค้างอยู่ |
+| D14 | บริษัทนำร่อง 3–5 แห่ง · จำนวนพนักงานรวม · ชื่อ domain ถาวร (ตอนนี้ใช้ `tonkla-th.vercel.app` ชั่วคราว) | spec §8 ค้างอยู่ |
 
 ### 11.2 สิทธิ์เข้าถึงเพื่อให้ผมดำเนินการ Supabase/Vercel แทน (R2)
 
-ตอนนี้ container นี้เรียก `*.supabase.co`, `api.supabase.com`, `api.vercel.com`, `tonkla.vercel.app` ไม่ได้ (proxy ตอบ 403) ต้อง
+ตอนนี้ container นี้เรียก `*.supabase.co`, `api.supabase.com`, `api.vercel.com`, `tonkla-th.vercel.app` ไม่ได้ (proxy ตอบ 403) ต้อง
 
 1. **เครือข่าย**: `api.supabase.com` และ `api.vercel.com` เปิดแล้วพร้อมคีย์ · ที่ยังต้องเปิด: `yfowqsfyfvzgwqdbkykx.supabase.co` (ทดสอบ runtime), (เมื่อถึง M1.6) `api.line.me` และ `aivora-lc.netlify.app`
 2. **ฝากคีย์ผ่านฟอร์มปลอดภัย** (ไม่ส่งในแชต ไม่ใส่ใน repo): Supabase personal access token (+ service role key ซึ่งดึงผ่าน Management API ได้) · Vercel token (+ team/project) · ตอน M1.6: LINE channel secret/token/basic ID · ตอน M1.8: คีย์ AI
 3. ✅ ฝากคีย์ Supabase และ Vercel แล้ว (16 พ.ย.) และตรวจแล้วว่าใช้ได้: Supabase โปรเจกต์ `tonkla` สถานะ ACTIVE_HEALTHY · Vercel มีโปรเจกต์ `tonkla` ผูกกับ repo `geeravut-lab/tonkla` แล้ว (ยังต้องตั้ง production-only ตอน M1.1)
-4. Supabase Auth → URL Configuration: Site URL = `https://tonkla.vercel.app` และ Redirect URLs ที่ระบุใน §5
+4. Supabase Auth → URL Configuration: Site URL = `https://tonkla-th.vercel.app` และ Redirect URLs ที่ระบุใน §5
 
 ---
 
