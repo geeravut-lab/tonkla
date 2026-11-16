@@ -71,6 +71,19 @@
 8. **ใช้ภาษาที่อ่านแล้วรู้เรื่องในทุกข้อความที่ผู้ใช้เห็น** error code ที่ server โยนมา
    ต้องแปลเป็นประโยคในภาษาของผู้ใช้ ไม่ใช่โชว์ stack
 
+## Tonkla (โครงการนี้): ข้อเสนอและแผน
+
+ไฟล์ชุดนี้เขียนใหม่สำหรับ Tonkla โดยนำ knowledge ข้างบนมาใช้ (ตาราง "ใช้ที่ไหน" อยู่ในแผน §9)
+
+| เรื่อง | ไฟล์ |
+| --- | --- |
+| Tech stack, สถาปัตยกรรม, แผนทุกเฟส, การตัดสินใจที่รอเจ้าของ, การนำ knowledge แต่ละไฟล์มาใช้ | [TONKLA-PLAN-KNOWLEDGE.md](./TONKLA-PLAN-KNOWLEDGE.md) |
+| Data model, RLS, รายการเทสสิทธิ์ขั้นต่ำ, PDPA | [TONKLA-DATA-MODEL-KNOWLEDGE.md](./TONKLA-DATA-MODEL-KNOWLEDGE.md) |
+| UX/UI, look & feel, สี ฟอนต์, โลโก้, favicon, ตัวหมุนโหลด | [TONKLA-UX-UI-KNOWLEDGE.md](./TONKLA-UX-UI-KNOWLEDGE.md) · ตัวอย่าง [design/brand-preview.html](./design/brand-preview.html) |
+| ผูกบัญชีเข้าสู่ระบบ LINE ผ่าน Aivora hub (Supabase) | [SSO-Aivora-Supabase.md](./SSO-Aivora-Supabase.md) (ค่าคงที่ในไฟล์เป็นของ e-voa ดูแผน §5.2) |
+| การ์ด Flex ของ LINE | [LINE-FLEX-CARD-KNOWLEDGE.md](./LINE-FLEX-CARD-KNOWLEDGE.md) |
+| ฟอนต์ สี และขนาดตัวอักษร | [TYPOGRAPHY-COLOR-KNOWLEDGE.md](./TYPOGRAPHY-COLOR-KNOWLEDGE.md) |
+
 ## โครงการ Thailand Global E-VOA
 
 เอกสารออกแบบระบบ E-VOA ใหม่และ knowledge ระบบเดิม (TieThai / WeGoThailand) อยู่ที่ [`evoa/`](./evoa/README.md)
