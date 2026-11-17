@@ -6,11 +6,12 @@ import * as comm from "@/i18n/dict/comm";
 import * as reports from "@/i18n/dict/reports";
 import * as ideas from "@/i18n/dict/ideas";
 import * as messaging from "@/i18n/dict/messaging";
+import * as dash from "@/i18n/dict/dash";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm, reports, ideas, messaging };
+const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {

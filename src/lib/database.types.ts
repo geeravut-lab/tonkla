@@ -1461,6 +1461,47 @@ export type Database = {
           },
         ]
       }
+      privacy_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          kind: string
+          note: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          kind: string
+          note?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          kind?: string
+          note?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privacy_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_events: {
         Row: {
           at: string
@@ -2182,15 +2223,24 @@ export type Database = {
           user_id: string
         }[]
       }
+      anonymize_user: { Args: { p_user: string }; Returns: undefined }
       archive_announcement: { Args: { p_id: string }; Returns: undefined }
       can_coordinate: { Args: { p_company: string }; Returns: boolean }
       claim_roster: { Args: never; Returns: number }
+      company_dashboard: {
+        Args: { p_company: string; p_days?: number }
+        Returns: Json
+      }
       create_invitation: {
         Args: { p_company: string; p_ttl_hours?: number }
         Returns: string
       }
       decide_join: {
         Args: { p_approve: boolean; p_request: string }
+        Returns: undefined
+      }
+      decide_privacy: {
+        Args: { p_id: string; p_status: string }
         Returns: undefined
       }
       end_membership: { Args: { p_membership: string }; Returns: undefined }
@@ -2262,6 +2312,7 @@ export type Database = {
           verified_at: string
         }[]
       }
+      my_data_export: { Args: never; Returns: Json }
       notify_system: {
         Args: {
           p_dedupe: string
@@ -2272,6 +2323,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      prune_old_data: { Args: never; Returns: Json }
       publish_announcement: { Args: { p_id: string }; Returns: number }
       redeem_invitation: { Args: { p_code: string }; Returns: string }
       report_assign: {
@@ -2297,6 +2349,10 @@ export type Database = {
       }
       request_join: {
         Args: { p_company: string; p_note?: string }
+        Returns: string
+      }
+      request_privacy: {
+        Args: { p_kind: string; p_note?: string }
         Returns: string
       }
       revoke_admin: { Args: { p_user: string }; Returns: undefined }

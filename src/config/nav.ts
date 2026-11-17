@@ -22,6 +22,7 @@ export const NAV: readonly NavItem[] = [
   { key: "directory", href: "/directory", label: "nav_directory", icon: "users", placement: "more" },
   { key: "account", href: "/account", label: "nav_account", icon: "user", placement: "more" },
   { key: "desk", href: "/desk", label: "nav_desk", icon: "shield", placement: "more", roles: ["coordinator"] },
+  { key: "dashboard", href: "/dashboard", label: "nav_dashboard", icon: "chart", placement: "more", roles: ["exec", "coordinator"] },
   { key: "admin", href: "/admin", label: "nav_admin", icon: "settings", placement: "more", roles: ["admin"] },
 ];
 

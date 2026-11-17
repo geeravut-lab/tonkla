@@ -51,6 +51,10 @@ export default async function AccountPage() {
         {t.ln_title}
       </PendingLink>
 
+      <PendingLink href="/account/privacy" icon={<Icon name="shield" />} className="tk-card flex min-h-16 items-center gap-3 p-4 font-semibold text-primary-hover">
+        {t.privacy_title}
+      </PendingLink>
+
       <div className="tk-card p-5">
         <h2 className="mb-2 text-lg font-semibold">{t.account_companies}</h2>
         <ul className="list-disc pl-5">{s.memberships.map((m) => <li key={m.id}>{m.companyName}</li>)}</ul>

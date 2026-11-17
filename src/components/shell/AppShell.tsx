@@ -17,6 +17,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   const [t, session] = await Promise.all([getDict(), requireActive()]);
   const held = new Set<string>();
   if (session.coordinatedCompanies.length) held.add("coordinator");
+  if (session.execCompanies.length) held.add("exec");
   if (session.isAdmin) held.add("admin");
   const items = navFor(held);
   let unread = 0;
