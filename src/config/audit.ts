@@ -6,6 +6,7 @@ export const AUDIT_KINDS: Record<string, readonly string[]> = {
   company: ["company.create", "company.update", "company.wave", "company.activate", "company.checklist"],
   member: ["member.join_request", "member.join_decide", "member.roster_import", "member.invite_create", "member.invite_redeem", "member.role_grant", "member.role_revoke", "member.end", "member.supervisor"],
   consent: ["consent.privacy"],
+  anon: ["anon.status", "anon.reply", "anon.note", "anon.handler"],
   ai: ["ai.keys", "ai.route", "ai.test", "ai.prompt_save", "ai.prompt_clear"],
   privacy: ["privacy.request", "privacy.export", "privacy.anonymize", "privacy.decide"],
   idea: ["idea.submit", "idea.transition", "idea.assign", "idea.share", "idea.vote", "idea.score", "idea.outcome", "idea.outcome_verify"],

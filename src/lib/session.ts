@@ -20,6 +20,7 @@ export type Session = {
   isAdmin: boolean;
   isCentral: boolean;
   isSupervisor: boolean;
+  isAnonHandler: boolean;
   /** Companies this person coordinates (all companies for central team). */
   coordinatedCompanies: { id: string; name: string }[];
   /** Companies where this person is an executive (all for central team). */
@@ -39,6 +40,7 @@ const FIXTURE: Session = {
   isAdmin: true,
   isCentral: true,
   isSupervisor: true,
+  isAnonHandler: true,
   coordinatedCompanies: [{ id: "c1", name: "บริษัท ตัวอย่าง" }],
   execCompanies: [{ id: "c1", name: "บริษัท ตัวอย่าง" }],
 };
@@ -51,13 +53,14 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const user = data.user;
   if (!user) return null;
 
-  const [profile, memberships, roles, admin, companies, consent] = await Promise.all([
+  const [profile, memberships, roles, admin, companies, consent, handler] = await Promise.all([
     sb.from("profiles").select("display_name, locale, status, must_change_password").eq("id", user.id).maybeSingle(),
     sb.from("memberships").select("id, company_id, is_primary, companies(name_th, name_en)").eq("user_id", user.id).eq("status", "active"),
     sb.from("role_assignments").select("id, role, scope_type, scope_id").eq("user_id", user.id),
     sb.from("platform_admins").select("user_id").eq("user_id", user.id),
     sb.from("companies").select("id, name_th, business_unit_id"),
     sb.from("consents").select("version").eq("user_id", user.id).eq("kind", "privacy").eq("version", PRIVACY_VERSION),
+    sb.from("anonymous_handlers").select("user_id").eq("user_id", user.id),
   ]);
   if (!profile.data) return null;
 
@@ -86,6 +89,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
     isAdmin: (admin.data ?? []).length > 0,
     isCentral,
     isSupervisor: roleRows.some((r) => r.role === "supervisor"),
+    isAnonHandler: isCentral && (handler.data ?? []).length > 0,
     coordinatedCompanies: all.filter(coordinates).map(({ id, name }) => ({ id, name })),
     execCompanies: all.filter(exec).map(({ id, name }) => ({ id, name })),
   };

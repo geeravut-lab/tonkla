@@ -10,11 +10,12 @@ import * as dash from "@/i18n/dict/dash";
 import * as ai from "@/i18n/dict/ai";
 import * as password from "@/i18n/dict/password";
 import * as rollout from "@/i18n/dict/rollout";
+import * as anon from "@/i18n/dict/anon";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout };
+const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {

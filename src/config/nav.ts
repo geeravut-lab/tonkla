@@ -1,5 +1,6 @@
 import type { DictKey } from "@/i18n";
 import type { IconName } from "@/components/ui/Icon";
+import type { FeatureKey } from "@/config/features";
 
 export type NavItem = {
   key: string;
@@ -10,6 +11,8 @@ export type NavItem = {
   placement: "bar" | "more";
   /** Capabilities that see the item (any of). Omit = everyone. */
   roles?: readonly string[];
+  /** Feature switch that must be on for the person's company (otherwise the item is hidden; the pages and actions also check). */
+  feature?: FeatureKey;
 };
 
 // The single source of every menu (sidebar, bottom bar, More sheet). Never repeat these links elsewhere.
@@ -21,14 +24,16 @@ export const NAV: readonly NavItem[] = [
   { key: "inbox", href: "/inbox", label: "nav_inbox", icon: "bell", placement: "more" },
   { key: "directory", href: "/directory", label: "nav_directory", icon: "users", placement: "more" },
   { key: "account", href: "/account", label: "nav_account", icon: "user", placement: "more" },
+  { key: "anonymous", href: "/anonymous/new", label: "nav_anonymous", icon: "lock", placement: "more", feature: "anonymous_channel" },
+  { key: "anon_cases", href: "/anonymous", label: "nav_anon_cases", icon: "shield", placement: "more", roles: ["handler"] },
   { key: "desk", href: "/desk", label: "nav_desk", icon: "shield", placement: "more", roles: ["coordinator"] },
   { key: "dashboard", href: "/dashboard", label: "nav_dashboard", icon: "chart", placement: "more", roles: ["exec", "coordinator"] },
   { key: "admin", href: "/admin", label: "nav_admin", icon: "settings", placement: "more", roles: ["admin"] },
 ];
 
 /** Menu items a person may see (the server still checks every page and action itself). */
-export function navFor(held: ReadonlySet<string>): readonly NavItem[] {
-  return NAV.filter((n) => !n.roles || n.roles.some((r) => held.has(r)));
+export function navFor(held: ReadonlySet<string>, features: ReadonlySet<string> = new Set()): readonly NavItem[] {
+  return NAV.filter((n) => (!n.roles || n.roles.some((r) => held.has(r))) && (!n.feature || features.has(n.feature)));
 }
 
 export function isActive(pathname: string, href: string): boolean {

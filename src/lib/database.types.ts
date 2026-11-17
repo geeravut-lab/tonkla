@@ -325,6 +325,138 @@ export type Database = {
           },
         ]
       }
+      anon_token_quota: {
+        Row: {
+          day: string
+          n: number
+          user_id: string
+        }
+        Insert: {
+          day?: string
+          n?: number
+          user_id: string
+        }
+        Update: {
+          day?: string
+          n?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anon_token_quota_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anon_used_tokens: {
+        Row: {
+          day: string
+          nonce_hash: string
+        }
+        Insert: {
+          day?: string
+          nonce_hash: string
+        }
+        Update: {
+          day?: string
+          nonce_hash?: string
+        }
+        Relationships: []
+      }
+      anonymous_events: {
+        Row: {
+          body: string
+          day: string
+          id: number
+          kind: string
+          report_id: string
+        }
+        Insert: {
+          body?: string
+          day?: string
+          id?: never
+          kind: string
+          report_id: string
+        }
+        Update: {
+          body?: string
+          day?: string
+          id?: never
+          kind?: string
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anonymous_events_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "anonymous_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anonymous_handlers: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anonymous_handlers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anonymous_reports: {
+        Row: {
+          body: string
+          case_code: string
+          category: string
+          day: string
+          id: string
+          secret_hash: string
+          status: string
+          title: string
+        }
+        Insert: {
+          body: string
+          case_code: string
+          category: string
+          day?: string
+          id?: string
+          secret_hash: string
+          status?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          case_code?: string
+          category?: string
+          day?: string
+          id?: string
+          secret_hash?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -2432,6 +2564,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_anon_handler: {
+        Args: { p_on: boolean; p_user: string }
+        Returns: undefined
+      }
+      admin_set_anon_handler_email: {
+        Args: { p_email: string; p_on: boolean }
+        Returns: undefined
+      }
       admin_set_checklist: {
         Args: { p_company: string; p_done: boolean; p_item: string }
         Returns: undefined
@@ -2461,6 +2601,34 @@ export type Database = {
           user_id: string
         }[]
       }
+      anon_followup: {
+        Args: { p_code: string; p_message: string; p_secret_hash: string }
+        Returns: undefined
+      }
+      anon_reply: {
+        Args: { p_body: string; p_id: string; p_kind: string }
+        Returns: undefined
+      }
+      anon_set_status: {
+        Args: { p_id: string; p_note?: string; p_status: string }
+        Returns: undefined
+      }
+      anon_status: {
+        Args: { p_code: string; p_secret_hash: string }
+        Returns: Json
+      }
+      anon_submit: {
+        Args: {
+          p_body: string
+          p_category: string
+          p_code: string
+          p_nonce_hash: string
+          p_secret_hash: string
+          p_title: string
+        }
+        Returns: string
+      }
+      anon_take_token: { Args: never; Returns: boolean }
       anonymize_user: { Args: { p_user: string }; Returns: undefined }
       archive_announcement: { Args: { p_id: string }; Returns: undefined }
       can_coordinate: { Args: { p_company: string }; Returns: boolean }

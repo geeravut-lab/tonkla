@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = [/^\/login/, /^\/sso\//, /^\/auth\//, /^\/api\/(health|sso|line|cron)/, /^\/brand\//, /^\/manifest\.webmanifest$/];
+const PUBLIC = [/^\/anonymous\/status/, /^\/login/, /^\/sso\//, /^\/auth\//, /^\/api\/(health|sso|line|cron)/, /^\/brand\//, /^\/manifest\.webmanifest$/];
 
 /** Refreshes the Supabase session cookie and sends signed-out visitors to /login. */
 export async function proxy(request: NextRequest) {
@@ -33,5 +33,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|css|js)$).*)"],
+  // api/anonymous/(submit|status|followup) are skipped on purpose: no session is read, so nothing can link a request to a person
+  matcher: ["/((?!_next/static|_next/image|api/anonymous/(?:submit|status|followup)|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|css|js)$).*)"],
 };

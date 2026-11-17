@@ -123,6 +123,28 @@ begin
   if (select count(*) from public.report_categories where company_id = v) < 5 or (select count(*) from public.idea_criteria where company_id = v) < 3 then raise exception 'FAIL template'; end if;
   steps := steps || 'template,';
 
+  -- ---- anonymous channel: nobody but appointed central handlers reads it; submit/status are server-only; wrong secret = not found
+  insert into public.anonymous_handlers (user_id) values (erin);
+  perform public.anon_submit('smoke-nonce-1', 'AN-HJKMPQ22', 'hash-1', 'complaint', 'smoke title', 'smoke body');
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'anonymous_reports' and (column_name like '%user%' or column_name like '%company%' or column_name like '%ip%')) then raise exception 'FAIL anonymous_reports links to a person'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 0 then raise exception 'FAIL coordinator reads anonymous'; end if;
+  begin perform public.anon_submit('smoke-nonce-2', 'AN-HJKMPQ33', 'h', 'other', 'smoke title', 'b'); raise exception 'FAIL employee calls anon_submit'; exception when insufficient_privilege then null; end;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', frank, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 0 then raise exception 'FAIL admin reads anonymous'; end if;
+  if (select count(*) from public.anonymous_handlers) <> 1 then raise exception 'FAIL admin cannot see handler list'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 1 then raise exception 'FAIL handler cannot read'; end if;
+  perform public.anon_reply((select id from public.anonymous_reports limit 1), 'reply', 'smoke reply');
+  perform public.anon_set_status((select id from public.anonymous_reports limit 1), 'reviewing');
+  execute 'reset role';
+  begin perform public.anon_status('AN-HJKMPQ22', 'wrong'); raise exception 'FAIL wrong secret accepted'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  if jsonb_array_length(public.anon_status('AN-HJKMPQ22', 'hash-1')->'messages') < 3 then raise exception 'FAIL reporter cannot follow'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if not public.anon_take_token() or not public.anon_take_token() or not public.anon_take_token() or public.anon_take_token() then raise exception 'FAIL token quota is not 3 per day'; end if;
+  execute 'reset role';
+  steps := steps || 'anonymous,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

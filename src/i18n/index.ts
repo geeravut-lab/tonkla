@@ -9,11 +9,12 @@ import * as dash from "./dict/dash";
 import * as ai from "./dict/ai";
 import * as password from "./dict/password";
 import * as rollout from "./dict/rollout";
+import * as anon from "./dict/anon";
 
 // Add a module here when a milestone adds a dictionary file.
-const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout];
+const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon];
 
-type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th & typeof password.th & typeof rollout.th;
+type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th & typeof password.th & typeof rollout.th & typeof anon.th;
 export type Dict = { [K in keyof ThAll]: string };
 export type DictKey = keyof Dict;
 export type Locale = "th" | "en";
