@@ -13,11 +13,13 @@ import * as rollout from "@/i18n/dict/rollout";
 import * as anon from "@/i18n/dict/anon";
 import * as comm2 from "@/i18n/dict/comm2";
 import * as recog from "@/i18n/dict/recog";
+import * as kb from "@/i18n/dict/kb";
+import * as gdash from "@/i18n/dict/gdash";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog };
+const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog, kb, gdash };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {

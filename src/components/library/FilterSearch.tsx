@@ -4,20 +4,19 @@ import { useState } from "react";
 import { useT } from "@/i18n/client";
 import { PendingButton } from "@/components/ui/PendingButton";
 
-const STAGES = ["submitted", "screening", "evaluating", "piloting", "scaled"] as const;
 const field = "min-h-12 w-full rounded-control border-2 border-field-border bg-surface px-3 text-base";
 
-/** The search lives in the address (?q=&stage=) so results can be shared and the Back button works. */
-export function LibrarySearch({ q, stage }: { q: string; stage: string }) {
+/** The search lives in the address (?q=&f=) so results can be shared and the Back button works. */
+export function FilterSearch({ path, extra = {}, q, filter, filterLabel, options }: { path: string; extra?: Record<string, string>; q: string; filter: string; filterLabel: string; options: { value: string; label: string }[] }) {
   const t = useT();
   const router = useRouter();
   const [text, setText] = useState(q);
-  const [st, setSt] = useState(stage);
+  const [st, setSt] = useState(filter);
   async function go() {
-    const p = new URLSearchParams();
+    const p = new URLSearchParams(extra);
     if (text.trim()) p.set("q", text.trim());
-    if (st) p.set("stage", st);
-    router.push(`/library${p.size ? `?${p}` : ""}`);
+    if (st) p.set("f", st);
+    router.push(`${path}${p.size ? `?${p}` : ""}`);
     await new Promise((r) => setTimeout(r, 400)); // keep the spinner until the new results arrive
   }
   return (
@@ -27,12 +26,12 @@ export function LibrarySearch({ q, stage }: { q: string; stage: string }) {
         <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} placeholder={t.lib_search_ph} maxLength={100} enterKeyHint="search" className={field} />
       </label>
       <label className="flex flex-col gap-1 font-medium">
-        {t.lib_filter_stage}
+        {filterLabel}
         <select value={st} onChange={(e) => setSt(e.target.value)} className={field}>
           <option value="">{t.lib_all}</option>
-          {STAGES.map((s) => (
-            <option key={s} value={s}>
-              {(t as Record<string, string>)[`is_${s}`]}
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
             </option>
           ))}
         </select>

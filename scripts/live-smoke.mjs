@@ -184,6 +184,19 @@ begin
   execute 'reset role';
   steps := steps || 'consent,';
 
+  -- ---- M2.5/M2.6: knowledge scopes, best practice from a solved report, group dashboard only for the central team
+  perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.kb_save(null, ca, 'policy', 'smoke policy', '', 'https://example.com/p', '');
+  if jsonb_typeof(public.group_dashboard(30)->'companies') <> 'array' then raise exception 'FAIL central group dashboard'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', bob, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.kb_documents where id = v) <> 0 then raise exception 'FAIL other company reads document'; end if;
+  begin perform public.group_dashboard(30); raise exception 'FAIL group dashboard for staff'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  begin perform public.group_dashboard(30); raise exception 'FAIL group dashboard for coordinator'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  if (select count(*) from public.kb_documents where id = v) <> 1 then raise exception 'FAIL company cannot read its document'; end if;
+  execute 'reset role';
+  steps := steps || 'knowledge,group-dashboard,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

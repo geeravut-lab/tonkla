@@ -616,6 +616,74 @@ export type Database = {
           },
         ]
       }
+      best_practices: {
+        Row: {
+          category_key: string | null
+          category_name: string
+          company_id: string
+          created_at: string
+          id: string
+          report_id: string
+          shared_by: string | null
+          solution: string
+          title: string
+          visibility: string
+        }
+        Insert: {
+          category_key?: string | null
+          category_name?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          report_id: string
+          shared_by?: string | null
+          solution: string
+          title: string
+          visibility?: string
+        }
+        Update: {
+          category_key?: string | null
+          category_name?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+          shared_by?: string | null
+          solution?: string
+          title?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "best_practices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "best_practices_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "best_practices_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "best_practices_shared_by_fkey"
+            columns: ["shared_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_units: {
         Row: {
           id: string
@@ -1706,6 +1774,76 @@ export type Database = {
           {
             foreignKeyName: "join_requests_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_documents: {
+        Row: {
+          body: string
+          company_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          kind: string
+          status: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          url: string | null
+          version: number
+        }
+        Insert: {
+          body?: string
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string
+          id?: string
+          kind: string
+          status?: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          url?: string | null
+          version?: number
+        }
+        Update: {
+          body?: string
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          kind?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          url?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_documents_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -3428,6 +3566,7 @@ export type Database = {
         }
         Returns: string
       }
+      group_dashboard: { Args: { p_days?: number }; Returns: Json }
       idea_add_outcome: {
         Args: {
           p_end: string
@@ -3478,6 +3617,22 @@ export type Database = {
           name_th: string
         }[]
       }
+      kb_save: {
+        Args: {
+          p_body: string
+          p_company: string
+          p_description: string
+          p_id: string
+          p_kind: string
+          p_title: string
+          p_url: string
+        }
+        Returns: string
+      }
+      kb_set_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
+      }
       mark_announcement_read: { Args: { p_id: string }; Returns: undefined }
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       my_channels: {
@@ -3525,6 +3680,14 @@ export type Database = {
       }
       poll_vote: {
         Args: { p_id: string; p_options: string[] }
+        Returns: undefined
+      }
+      practice_edit: {
+        Args: { p_id: string; p_solution: string; p_title: string }
+        Returns: undefined
+      }
+      practice_share: {
+        Args: { p_id: string; p_on: boolean }
         Returns: undefined
       }
       prune_old_data: { Args: never; Returns: Json }
