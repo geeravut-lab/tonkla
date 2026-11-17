@@ -24,9 +24,11 @@ export default async function NewsPage() {
   if (!isFixtureMode()) {
     const sb = await createClient();
     const [a, r] = await Promise.all([
-      sb.from("announcements").select("id, kind, title, body, pinned, requires_ack, ack_due_at, publish_at, company_id, profiles(display_name)").eq("status", "published").order("pinned", { ascending: false }).order("publish_at", { ascending: false }).limit(50),
+      sb.from("announcements").select("id, kind, title, body, pinned, requires_ack, ack_due_at, publish_at, company_id, profiles!announcements_author_id_fkey(display_name)").eq("status", "published").order("pinned", { ascending: false }).order("publish_at", { ascending: false }).limit(50),
       sb.from("announcement_receipts").select("announcement_id, read_at, acked_at").eq("user_id", s.userId),
     ]);
+    // an error here must never look like "no announcements": show the error page instead of an empty list
+    if (a.error) throw new Error(`announcements query failed: ${a.error.message}`);
     items = (a.data ?? []) as unknown as FeedItem[];
     for (const x of r.data ?? []) receipts.set(x.announcement_id, x);
   }

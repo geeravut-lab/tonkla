@@ -92,3 +92,10 @@ test("language switch changes the page language", async ({ page, isMobile }) => 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Hello");
 });
+
+test("the signed-in account is visible: in the sidebar on desktop and in the header on phone", async ({ page, isMobile }) => {
+  await page.goto("/news");
+  const label = page.getByTestId(isMobile ? "account-label-mobile" : "account-label");
+  await expect(label).toBeVisible();
+  await expect(label).toContainText("fixture@example.test");
+});
