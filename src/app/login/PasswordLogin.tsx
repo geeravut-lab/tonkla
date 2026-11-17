@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useT } from "@/i18n/client";
 import { PendingButton } from "@/components/ui/PendingButton";
@@ -9,6 +10,7 @@ const input = "min-h-12 w-full rounded-control border-2 border-field-border bg-s
 /** For accounts an administrator created (the central team's emergency accounts, demo and pilot accounts). Self sign-up stays closed. */
 export function PasswordLogin() {
   const t = useT();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,8 @@ export function PasswordLogin() {
     try {
       const { error: e } = await createClient().auth.signInWithPassword({ email: email.trim(), password });
       if (e) throw e;
-      window.location.assign("/"); // a full load so the new session cookie is read by the server
+      router.replace("/");
+      router.refresh(); // the server now sees the new session cookie
       await new Promise(() => {});
     } catch {
       setError(t.err_login_failed);

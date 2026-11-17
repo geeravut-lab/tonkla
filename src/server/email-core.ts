@@ -1,3 +1,5 @@
+import { EMAIL_COLORS as C } from "@/config/brand";
+
 // Pure helpers for e-mail (no database, no network): composing a message and applying the "send everything to one address" test mode.
 
 export type EmailConfig = { key: string; from: string; redirectTo: string | null };
@@ -21,12 +23,12 @@ export function composeEmail(o: { brand: string; title: string; summary: string;
   const subject = redirected ? `[TEST → ${cut(o.recipientName || o.recipient, 40)}] ${subjectBase}` : `${o.brand}: ${subjectBase}`;
   const testNote = redirected ? `\n\n— ทดสอบ: ข้อความนี้ถูกส่งต่อมาที่ผู้ดูแลแทนผู้รับจริง (${o.recipientName || "?"} <${o.recipient}>)` : "";
   const text = `${o.title}\n${o.summary}\n\n${o.button}: ${o.url}\n\n${o.footer}${testNote}`;
-  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:16px;color:#10282b">
-<p style="font-size:14px;color:#506468;margin:0 0 12px">${esc(o.brand)}</p>
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:16px;color:${C.text}">
+<p style="font-size:14px;color:${C.muted};margin:0 0 12px">${esc(o.brand)}</p>
 <h1 style="font-size:20px;margin:0 0 8px">${esc(o.title)}</h1>
 <p style="font-size:16px;margin:0 0 20px">${esc(o.summary)}</p>
-<p><a href="${esc(o.url)}" style="display:inline-block;background:#0e7a5c;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold">${esc(o.button)}</a></p>
-<p style="font-size:13px;color:#506468;margin-top:24px">${esc(o.footer)}</p>${redirected ? `<p style="font-size:12px;color:#b42318">${esc(testNote.trim())}</p>` : ""}</div>`;
+<p><a href="${esc(o.url)}" style="display:inline-block;background:${C.button};color:${C.buttonText};text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold">${esc(o.button)}</a></p>
+<p style="font-size:13px;color:${C.muted};margin-top:24px">${esc(o.footer)}</p>${redirected ? `<p style="font-size:12px;color:${C.warning}">${esc(testNote.trim())}</p>` : ""}</div>`;
   return { to, subject, text, html };
 }
 
