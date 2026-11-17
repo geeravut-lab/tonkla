@@ -62,6 +62,13 @@ export const th = {
   home_must_read: "ต้องรับทราบ",
   home_latest: "ข่าวล่าสุด",
   home_see_all: "ดูทั้งหมด",
+  home_tasks_title: "งานที่รอฉัน",
+  home_tasks_join: "คำขอเข้าร่วมรออนุมัติ",
+  home_tasks_reports: "เรื่องแจ้งปัญหารอรับเรื่อง",
+  home_tasks_ideas: "ไอเดียรอรับเรื่อง",
+  home_tasks_anon: "เรื่องร้องเรียนไม่ระบุตัวตนที่ยังไม่ได้ตรวจ",
+  home_tasks_late: "เกินกำหนด {n}",
+  home_tasks_none: "ตอนนี้ไม่มีงานค้าง",
 } as const;
 
 export const en = {
@@ -128,4 +135,11 @@ export const en = {
   home_must_read: "Needs acknowledgement",
   home_latest: "Latest news",
   home_see_all: "See all",
+  home_tasks_title: "Waiting for me",
+  home_tasks_join: "Join requests to approve",
+  home_tasks_reports: "Problem reports waiting to be picked up",
+  home_tasks_ideas: "Ideas waiting to be picked up",
+  home_tasks_anon: "Anonymous complaints not yet reviewed",
+  home_tasks_late: "{n} overdue",
+  home_tasks_none: "Nothing is waiting right now",
 } satisfies { [K in keyof typeof th]: string };

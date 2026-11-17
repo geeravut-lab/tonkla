@@ -132,11 +132,11 @@ begin
   begin perform public.anon_submit('smoke-nonce-2', 'AN-HJKMPQ33', 'h', 'other', 'smoke title', 'b'); raise exception 'FAIL employee calls anon_submit'; exception when insufficient_privilege then null; end;
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', frank, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
   if (select count(*) from public.anonymous_reports) <> 0 then raise exception 'FAIL admin reads anonymous'; end if;
-  if (select count(*) from public.anonymous_handlers) <> 1 then raise exception 'FAIL admin cannot see handler list'; end if;
+  if not exists (select 1 from public.anonymous_handlers where user_id = erin) then raise exception 'FAIL admin cannot see handler list'; end if; -- other appointed handlers may exist (demo data), so look for ours
   execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
-  if (select count(*) from public.anonymous_reports) <> 1 then raise exception 'FAIL handler cannot read'; end if;
-  perform public.anon_reply((select id from public.anonymous_reports limit 1), 'reply', 'smoke reply');
-  perform public.anon_set_status((select id from public.anonymous_reports limit 1), 'reviewing');
+  if (select count(*) from public.anonymous_reports where title = 'smoke title') <> 1 then raise exception 'FAIL handler cannot read'; end if; -- demo data has its own cases, so look for ours
+  perform public.anon_reply((select id from public.anonymous_reports where title = 'smoke title'), 'reply', 'smoke reply');
+  perform public.anon_set_status((select id from public.anonymous_reports where title = 'smoke title'), 'reviewing');
   execute 'reset role';
   begin perform public.anon_status('AN-HJKMPQ22', 'wrong'); raise exception 'FAIL wrong secret accepted'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
   if jsonb_array_length(public.anon_status('AN-HJKMPQ22', 'hash-1')->'messages') < 3 then raise exception 'FAIL reporter cannot follow'; end if;
