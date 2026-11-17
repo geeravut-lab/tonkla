@@ -71,7 +71,6 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
   const [openAt, setOpenAt] = useState<string | null>(null); // path the sheet was opened on: closes by itself when the route changes
   const open = openAt === pathname;
   const reserved = useRef(false); // one history entry is reserved while the sheet is open
-  const goTo = useRef<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const [canUp, setCanUp] = useState(false);
   const [canDown, setCanDown] = useState(false);
@@ -97,15 +96,25 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
     function onPop() {
       reserved.current = false;
       setOpenAt(null);
-      if (goTo.current) {
-        const href = goTo.current;
-        goTo.current = null;
-        router.push(href);
-      }
     }
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [router]);
+  }, []);
+
+  /**
+   * Going to a page from the sheet REPLACES the history entry the sheet reserved (no back() + push() pair: that raced with
+   * Next's own popstate handling on phones and left the spinner running with no page change). History stays clean.
+   */
+  const navigateFromSheet = useCallback(
+    (href: string) => {
+      if (href === pathname) return closeSheet();
+      navStore.begin();
+      reserved.current = false;
+      setOpenAt(null);
+      router.replace(href);
+    },
+    [pathname, router, closeSheet],
+  );
 
   const measure = useCallback(() => {
     const el = scroller.current;
@@ -186,16 +195,14 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
                     const active = isActive(pathname, it.href);
                     return (
                       <li key={it.key}>
-                        {/* eslint-disable-next-line no-restricted-syntax -- manual navigation: history is unwound first (BACK-BUTTON rule), progress shown via navStore */}
+                        {/* eslint-disable-next-line no-restricted-syntax -- manual navigation: replaces the entry the sheet reserved (BACK-BUTTON rule), progress shown via navStore */}
                         <a
                           href={it.href}
                           aria-current={active ? "page" : undefined}
                           onClick={(e) => {
                             if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
                             e.preventDefault();
-                            navStore.begin();
-                            goTo.current = it.href;
-                            closeSheet();
+                            navigateFromSheet(it.href);
                           }}
                           className={`flex min-h-12 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-mint font-bold text-primary-hover" : "text-ink"}`}
                         >

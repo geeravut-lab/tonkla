@@ -59,6 +59,21 @@ test("phone: More sheet opens, scrolls inside 85dvh, and the device Back button 
   await expect(page).toHaveURL(/\/$/);
 });
 
+test("phone: pressing an item in More opens that page, clears the spinner, and Back returns to where you were", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "phone only");
+  await page.goto("/news");
+  for (const [name, path] of [["สมุดรายชื่อ", "/directory"], ["บัญชีของฉัน", "/account"]] as const) {
+    await page.getByRole("button", { name: "เพิ่มเติม" }).click();
+    const dialog = page.getByRole("dialog", { name: "เมนูเพิ่มเติม" });
+    await dialog.getByRole("link", { name }).click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(dialog).toBeHidden();
+    await expect(page.getByTestId("nav-progress")).toHaveCount(0);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/news$/); // one Back press: the sheet left no extra history entry
+  }
+});
+
 test("language switch changes the page language", async ({ page, isMobile }) => {
   await page.goto("/");
   if (isMobile) await page.getByRole("button", { name: "เพิ่มเติม" }).click();
