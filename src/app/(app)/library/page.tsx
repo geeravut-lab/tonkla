@@ -7,7 +7,7 @@ import { isFixtureMode } from "@/lib/env";
 import { rank } from "@/lib/search";
 import { assertFeatureForPage } from "@/server/page-guards";
 import { PendingLink } from "@/components/ui/PendingLink";
-import { LibrarySearch } from "@/components/library/LibrarySearch";
+import { FilterSearch } from "@/components/library/FilterSearch";
 
 export async function generateMetadata() {
   return { title: (await getDict()).lib_title };
@@ -15,12 +15,13 @@ export async function generateMetadata() {
 
 type Row = { id: string; title: string; body: string; stage: string; type_key: string; company: string; other: boolean; votes: number };
 
-export default async function LibraryPage({ searchParams }: { searchParams: Promise<{ q?: string; stage?: string }> }) {
+export default async function LibraryPage({ searchParams }: { searchParams: Promise<{ q?: string; f?: string }> }) {
   const [t, s, sp] = await Promise.all([getDict(), requireActive(), searchParams]);
   if (s.memberships.length === 0) notFound();
   await assertFeatureForPage("idea_library", s.memberships[0]?.companyId);
   const q = (sp.q ?? "").slice(0, 100);
-  const stage = ["submitted", "screening", "evaluating", "piloting", "scaled"].includes(sp.stage ?? "") ? sp.stage! : "";
+  const STAGES = ["submitted", "screening", "evaluating", "piloting", "scaled"];
+  const stage = STAGES.includes(sp.f ?? "") ? sp.f! : "";
   let all: Row[] = [];
   if (!isFixtureMode()) {
     const sb = await createClient();
@@ -43,7 +44,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         <h1 className="mb-1 text-2xl font-bold md:text-3xl">{t.lib_title}</h1>
         <p className="text-muted">{t.lib_intro}</p>
       </div>
-      <LibrarySearch q={q} stage={stage} />
+      <FilterSearch path="/library" q={q} filter={stage} filterLabel={t.lib_filter_stage} options={[{ value: "", label: t.lib_all }, ...STAGES.map((x) => ({ value: x, label: (t as Record<string, string>)[`is_${x}`] ?? x }))]} />
       <p className="text-sm text-muted" aria-live="polite">{fmt(t.lib_results, { n: hits.length })}</p>
       {hits.length === 0 ? (
         <p className="text-muted">{t.lib_none}</p>
