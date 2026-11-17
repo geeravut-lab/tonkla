@@ -74,6 +74,17 @@ test("phone: pressing an item in More opens that page, clears the spinner, and B
   }
 });
 
+test("the menu item you are on has a light green background (sidebar on desktop, bottom bar on phone)", async ({ page }) => {
+  await page.goto("/news");
+  const nav = page.getByRole("navigation", { name: "เมนูหลัก" }).filter({ visible: true });
+  const active = nav.locator("[aria-current='page']").first();
+  await expect(active).toBeVisible();
+  const bg = await active.evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(bg).not.toBe("rgba(0, 0, 0, 0)");
+  const other = await nav.locator("a:not([aria-current='page'])").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(other).toBe("rgba(0, 0, 0, 0)");
+});
+
 test("language switch changes the page language", async ({ page, isMobile }) => {
   await page.goto("/");
   if (isMobile) await page.getByRole("button", { name: "เพิ่มเติม" }).click();
