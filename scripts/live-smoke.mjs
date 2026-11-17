@@ -123,6 +123,67 @@ begin
   if (select count(*) from public.report_categories where company_id = v) < 5 or (select count(*) from public.idea_criteria where company_id = v) < 3 then raise exception 'FAIL template'; end if;
   steps := steps || 'template,';
 
+  -- ---- anonymous channel: nobody but appointed central handlers reads it; submit/status are server-only; wrong secret = not found
+  insert into public.anonymous_handlers (user_id) values (erin);
+  perform public.anon_submit('smoke-nonce-1', 'AN-HJKMPQ22', 'hash-1', 'complaint', 'smoke title', 'smoke body');
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'anonymous_reports' and (column_name like '%user%' or column_name like '%company%' or column_name like '%ip%')) then raise exception 'FAIL anonymous_reports links to a person'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 0 then raise exception 'FAIL coordinator reads anonymous'; end if;
+  begin perform public.anon_submit('smoke-nonce-2', 'AN-HJKMPQ33', 'h', 'other', 'smoke title', 'b'); raise exception 'FAIL employee calls anon_submit'; exception when insufficient_privilege then null; end;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', frank, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 0 then raise exception 'FAIL admin reads anonymous'; end if;
+  if (select count(*) from public.anonymous_handlers) <> 1 then raise exception 'FAIL admin cannot see handler list'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.anonymous_reports) <> 1 then raise exception 'FAIL handler cannot read'; end if;
+  perform public.anon_reply((select id from public.anonymous_reports limit 1), 'reply', 'smoke reply');
+  perform public.anon_set_status((select id from public.anonymous_reports limit 1), 'reviewing');
+  execute 'reset role';
+  begin perform public.anon_status('AN-HJKMPQ22', 'wrong'); raise exception 'FAIL wrong secret accepted'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  if jsonb_array_length(public.anon_status('AN-HJKMPQ22', 'hash-1')->'messages') < 3 then raise exception 'FAIL reporter cannot follow'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if not public.anon_take_token() or not public.anon_take_token() or not public.anon_take_token() or public.anon_take_token() then raise exception 'FAIL token quota is not 3 per day'; end if;
+  execute 'reset role';
+  steps := steps || 'anonymous,';
+
+  -- ---- M2.3: emergency, Q&A, events, polls
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.report_emergency(ca, 'safety', 'smoke place', 'smoke body', null);
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', bob, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.emergency_incidents) <> 0 then raise exception 'FAIL other company reads emergency'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.emergency_incidents) <> 1 then raise exception 'FAIL coordinator cannot read emergency'; end if;
+  perform public.emergency_set_status(v, 'acknowledged', '');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.poll_create(null, 'smoke poll', array['a','b'], false, 'after_vote', now() + interval '1 day');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  perform public.poll_vote(v, array[(select id from public.poll_options where poll_id = v order by pos limit 1)]);
+  if (select count(*) from public.poll_results(v)) <> 2 then raise exception 'FAIL poll results'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.poll_votes) <> 0 then raise exception 'FAIL host sees ballots'; end if;
+  execute 'reset role';
+  steps := steps || 'emergency,poll,';
+
+  -- ---- M2.4: points follow adoption only; awards need the right stage
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  n := (select coalesce(sum(points), 0) from public.recognition_points);
+  v := public.submit_idea(null, ca, 'process_improvement', 'smoke idea two', '', '', '', '', null);
+  if (select coalesce(sum(points), 0) from public.recognition_points) <> n then raise exception 'FAIL points for sending'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  perform public.idea_transition(v, 'screening', ''); perform public.idea_transition(v, 'evaluating', ''); perform public.idea_transition(v, 'piloting', '');
+  begin perform public.award_grant(v, 'dare_to_try', 'smoke lesson'); raise exception 'FAIL dare_to_try on a running pilot'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  perform public.award_grant(v, 'monthly_highlight', 'smoke highlight');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select coalesce(sum(points), 0) from public.recognition_points) <> n + 25 then raise exception 'FAIL points total %', (select sum(points) from public.recognition_points); end if;
+  execute 'reset role';
+  steps := steps || 'points,awards,';
+
+  -- ---- accepting the privacy notice works for a signed-in user (plain insert; no UPDATE right is needed or given)
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  insert into public.consents (user_id, kind, version) values (alice, 'privacy', 'smoke-v1');
+  begin insert into public.consents (user_id, kind, version) values (alice, 'privacy', 'smoke-v1') on conflict (user_id, kind, version) do update set version = excluded.version; raise exception 'FAIL consent upsert allowed'; exception when insufficient_privilege then null; end;
+  execute 'reset role';
+  steps := steps || 'consent,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

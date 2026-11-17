@@ -230,5 +230,5 @@ export async function runCron() {
   const tick = await admin.rpc("run_tick");
   if (tick.error) console.error("run_tick failed", tick.error.message);
   const [line, company] = await Promise.all([flushLine(), flushCompany()]);
-  return { tick: tick.data ?? null, line, company };
+  return { tick: tick.data ?? null, tickError: tick.error?.message ?? null, line, company };
 }

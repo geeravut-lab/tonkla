@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getDict } from "@/i18n/server";
 import { navFor } from "@/config/nav";
+import { featureEnabled } from "@/server/features";
 import { requireActive } from "@/lib/session";
 import { isFixtureMode } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
@@ -19,7 +20,10 @@ export async function AppShell({ children }: { children: ReactNode }) {
   if (session.coordinatedCompanies.length) held.add("coordinator");
   if (session.execCompanies.length) held.add("exec");
   if (session.isAdmin) held.add("admin");
-  const items = navFor(held);
+  if (session.isAnonHandler) held.add("handler");
+  const features = new Set<string>();
+  for (const f of ["anonymous_channel", "emergency", "qa", "events", "polls", "challenges", "idea_library", "recognition"] as const) if (await featureEnabled(f, session.memberships[0]?.companyId)) features.add(f);
+  const items = navFor(held, features);
   let unread = 0;
   if (!isFixtureMode()) {
     const sb = await createClient();
@@ -30,6 +34,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   if (session.isCentral) topics.push("central");
   else for (const c of session.coordinatedCompanies) topics.push(`co:${c.id}`);
   if (session.isAdmin) topics.push("adm");
+  if (session.isAnonHandler) topics.push("anon");
   const fallbackKeys = ["notif", ...(session.coordinatedCompanies.length ? ["desk"] : [])].join(",");
   const badges = { inbox: unread };
   return (

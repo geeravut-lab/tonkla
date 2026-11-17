@@ -6,6 +6,8 @@ import { PendingLink } from "@/components/ui/PendingLink";
 
 const ITEMS: { href: string; label: DictKey; icon: IconName }[] = [
   { href: "/admin/audit", label: "admin_audit", icon: "shield" },
+  { href: "/admin/rollout", label: "admin_rollout", icon: "building" },
+  { href: "/admin/recognition", label: "admin_recognition", icon: "check" },
   { href: "/admin/features", label: "admin_features", icon: "settings" },
   { href: "/admin/brand", label: "admin_brand", icon: "megaphone" },
   { href: "/admin/admins", label: "admin_admins", icon: "user" },

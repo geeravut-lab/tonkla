@@ -201,6 +201,11 @@ describe("analytics and consent", () => {
     expect(await h.denied(U.alice, "insert into public.product_events (user_id, name, tag) values ($1, 'x_y', 'Has Spaces!')", [U.alice])).toMatch(/check/);
     expect(await h.denied(U.alice, "select * from public.product_events")).toMatch(/permission denied/); // write-only for browsers
   });
+  it("accepting the notice is a plain insert; an upsert (which needs UPDATE) is refused, a repeat is a unique violation", async () => {
+    await h.asCommit(U.carol, async (q) => q("insert into public.consents (user_id, kind, version) values ($1, 'privacy', 'v9')", [U.carol]));
+    expect(await h.denied(U.carol, "insert into public.consents (user_id, kind, version) values ($1, 'privacy', 'v9')", [U.carol])).toMatch(/duplicate|unique/);
+    expect(await h.denied(U.carol, "insert into public.consents (user_id, kind, version) values ($1, 'privacy', 'v9') on conflict (user_id, kind, version) do update set version = excluded.version", [U.carol])).toMatch(/permission denied/);
+  });
   it("consents are private to their owner", async () => {
     await h.asCommit(U.alice, async (q) => q("insert into public.consents (user_id, kind, version) values ($1, 'privacy', 'v1')", [U.alice]));
     expect(await h.as(U.bob, async (q) => (await q("select * from public.consents")).rows.length)).toBe(0);

@@ -5,6 +5,11 @@ const PARENTS: readonly { pattern: RegExp; parent: string; label: DictKey }[] = 
   { pattern: /^\/news\/[^/]+$/, parent: "/news", label: "nav_news" },
   { pattern: /^\/reports\/[^/]+$/, parent: "/reports", label: "nav_reports" },
   { pattern: /^\/ideas\/[^/]+$/, parent: "/ideas", label: "nav_ideas" },
+  { pattern: /^\/emergency\/[^/]+$/, parent: "/emergency", label: "nav_emergency" },
+  { pattern: /^\/qa\/[^/]+$/, parent: "/qa", label: "nav_qa" },
+  { pattern: /^\/events\/[^/]+$/, parent: "/events", label: "nav_events" },
+  { pattern: /^\/polls\/[^/]+$/, parent: "/polls", label: "nav_polls" },
+  { pattern: /^\/challenges\/[^/]+$/, parent: "/challenges", label: "nav_challenges" },
   { pattern: /^\/account\/[^/]+$/, parent: "/account", label: "nav_account" },
   { pattern: /^\/admin\/[^/]+$/, parent: "/admin", label: "nav_admin" },
 ];

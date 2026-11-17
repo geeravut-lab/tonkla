@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AppError, expectRows, type ActionState } from "@/lib/errors";
+import { AppError, type ActionState } from "@/lib/errors";
 import { requireSession } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/server/audit";
@@ -44,9 +44,9 @@ export async function acceptConsent(): Promise<ActionState> {
     const s = await requireSession();
     const sb = await createClient();
     const { PRIVACY_VERSION } = await import("@/lib/session");
-    const { data, error } = await sb.from("consents").upsert({ user_id: s.userId, kind: "privacy", version: PRIVACY_VERSION }, { onConflict: "user_id,kind,version" }).select("version");
-    if (error) throw error;
-    expectRows(data);
+    // consents are append-only for the user (insert + select, no update): a plain insert; accepting twice is already done
+    const { error } = await sb.from("consents").insert({ user_id: s.userId, kind: "privacy", version: PRIVACY_VERSION });
+    if (error && error.code !== "23505") throw error;
     await audit({ by: s.userId, action: "consent.privacy", entity: "consents", entityId: s.userId, detail: { version: PRIVACY_VERSION } });
     ok = true;
   });

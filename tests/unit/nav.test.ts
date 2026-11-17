@@ -28,3 +28,15 @@ describe("back links", () => {
     expect(parentOf("/reports/123", "__proto__")?.href).toBe("/reports");
   });
 });
+
+import { navFor } from "@/config/nav";
+describe("role and feature filtering", () => {
+  it("hides feature-gated and role-gated items until allowed", () => {
+    const keys = (held: string[], feats: string[] = []) => navFor(new Set(held), new Set(feats)).map((n) => n.key);
+    expect(keys([])).not.toContain("anonymous");
+    expect(keys([], ["anonymous_channel"])).toContain("anonymous");
+    expect(keys([])).not.toContain("anon_cases");
+    expect(keys(["handler"])).toContain("anon_cases");
+    expect(keys([])).not.toContain("admin");
+  });
+});

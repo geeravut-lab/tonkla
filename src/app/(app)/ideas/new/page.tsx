@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 import { getDict } from "@/i18n/server";
 import { IDEA_TYPES } from "@/lib/ideas";
 import { requireActive } from "@/lib/session";
+import { isFixtureMode } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
+import { isFuture } from "@/lib/time";
+import { featureEnabled } from "@/server/features";
 import { assertFeatureForPage } from "@/server/page-guards";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
@@ -14,10 +18,15 @@ export async function generateMetadata() {
 const field = "min-h-12 w-full rounded-control border-2 border-field-border bg-surface px-3 text-base";
 const area = "w-full rounded-control border-2 border-field-border bg-surface px-3 py-2 text-base";
 
-export default async function NewIdeaPage() {
-  const [t, s] = await Promise.all([getDict(), requireActive()]);
+export default async function NewIdeaPage({ searchParams }: { searchParams: Promise<{ challenge?: string }> }) {
+  const [t, s, sp] = await Promise.all([getDict(), requireActive(), searchParams]);
   if (s.memberships.length === 0) notFound();
   await assertFeatureForPage("ideas", s.memberships[0]?.companyId);
+  let challenges: { id: string; title: string }[] = [];
+  if (!isFixtureMode() && (await featureEnabled("challenges", s.memberships[0]?.companyId))) {
+    const sb = await createClient();
+    challenges = ((await sb.rpc("challenges_list")).data ?? []).filter((c) => c.status === "open" && isFuture(c.closes_at)).map((c) => ({ id: c.id, title: c.title }));
+  }
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold md:text-3xl">{t.idea_new}</h1>
@@ -46,6 +55,19 @@ export default async function NewIdeaPage() {
             ))}
           </select>
         </label>
+        {challenges.length > 0 ? (
+          <label className="flex flex-col gap-1 font-medium">
+            {t.chl_pick}
+            <select name="challenge" defaultValue={challenges.some((c) => c.id === sp.challenge) ? sp.challenge : ""} className={field}>
+              <option value="">{t.chl_pick_none}</option>
+              {challenges.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label className="flex flex-col gap-1 font-medium">
           {t.idea_field_title}
           <input name="title" required minLength={3} maxLength={200} className={field} />
