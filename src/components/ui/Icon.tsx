@@ -21,6 +21,7 @@ const PATHS = {
   inbox: "M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z",
   chart: "M3 3v18h18M7 14l4-4 3 3 5-6",
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
+  download: "M12 3v12M7 11l5 5 5-5M4 20h16",
   building: "M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01",
 } as const;
 
