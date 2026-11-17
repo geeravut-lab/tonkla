@@ -30,6 +30,8 @@ Build milestone by milestone as listed in the plan (M1.1 first). Do not start a 
 - Audit trail, AI provider/model settings, AI prompts and rules, branding, feature flags and live sync are admin-configurable features, not hard-coded. See the plan for the owner's exact requirements (R5 to R14).
 - Cross-cutting engineering rules from `docs/Knowledge-Index.md`: count rows after every UPDATE, hiding a button is not disabling a feature, admin-settable values are never duplicated in the UI, fallbacks keep working rather than stop, external notifications are self-explanatory and carry no sensitive content, user-visible errors are readable sentences.
 
+- **Claude tests its own work, including against the live Supabase project.** The owner granted access, so do not ask them to test things you can verify yourself: run unit, database (PGlite), e2e and build checks, then verify migrations, RLS, auth settings, storage and the deployed site directly through the Supabase and Vercel APIs. Use clearly marked test data (`is_demo` companies, `test-` prefixes), remove it afterwards, never touch real employee data, and report what was and was not verified.
+
 ## Rules that hold for all work here
 
 - Company data isolation is enforced on the server or in database rules, never only in the UI. Every permission rule gets a test.

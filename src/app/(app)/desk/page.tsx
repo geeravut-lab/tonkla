@@ -7,6 +7,7 @@ import { PendingLink } from "@/components/ui/PendingLink";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { createInvite, decideJoin, endMember, importRoster, setRole } from "@/app/actions/desk";
 import { saveRouting } from "@/app/actions/reports";
+import { saveCriterion } from "@/app/actions/ideas";
 
 export async function generateMetadata() {
   return { title: (await getDict()).desk_title };
@@ -23,16 +24,19 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   let members: Mem[] = [];
   let supervisors = new Map<string, string>();
   let categories: { id: string; name_th: string }[] = [];
+  let criteria: { id: string; name_th: string; weight: number; active: boolean }[] = [];
   let routing = new Map<string, { owner_user_id: string; sla_hours: number | null }>();
   if (!isFixtureMode()) {
     const sb = await createClient();
-    const [r, m, roles, cats, rr] = await Promise.all([
+    const [r, m, roles, cats, rr, crit] = await Promise.all([
       sb.from("join_requests").select("id, note, profiles(display_name)").eq("company_id", company.id).eq("status", "pending").order("created_at"),
       sb.from("memberships").select("id, user_id, profiles(display_name)").eq("company_id", company.id).eq("status", "active").order("started_at"),
       sb.from("role_assignments").select("id, user_id").eq("role", "supervisor").eq("scope_type", "company").eq("scope_id", company.id),
       sb.from("report_categories").select("id, name_th").eq("company_id", company.id).eq("active", true).order("name_th"),
       sb.from("routing_rules").select("category_id, owner_user_id, sla_hours").eq("company_id", company.id),
+      sb.from("idea_criteria").select("id, name_th, weight, active").eq("company_id", company.id).order("weight", { ascending: false }),
     ]);
+    criteria = crit.data ?? [];
     categories = cats.data ?? [];
     routing = new Map((rr.data ?? []).map((x) => [x.category_id, x]));
     requests = (r.data ?? []) as unknown as Req[];
@@ -144,6 +148,38 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
           </ul>
         </div>
       ) : null}
+
+      <div className="tk-card p-5">
+        <h2 className="mb-1 text-lg font-semibold">{t.desk_criteria}</h2>
+        <p className="mb-3 text-sm text-muted">{t.desk_criteria_help}</p>
+        <ul className="flex flex-col divide-y divide-line">
+          {[...criteria, null].map((c) => (
+            <li key={c?.id ?? "new"} className="py-3">
+              <StatefulForm action={saveCriterion} className="flex flex-wrap items-end gap-3">
+                <input type="hidden" name="company" value={company.id} />
+                {c ? <input type="hidden" name="id" value={c.id} /> : null}
+                <label className="flex min-w-48 flex-1 flex-col gap-1 text-sm font-medium">
+                  {t.desk_criteria_name}
+                  <input name="name" defaultValue={c?.name_th ?? ""} required maxLength={160} className="min-h-12 rounded-control border-2 border-field-border bg-surface px-3 text-base" />
+                </label>
+                <label className="flex flex-col gap-1 text-sm font-medium">
+                  {t.desk_criteria_weight}
+                  <input type="number" name="weight" min={1} max={10} defaultValue={c?.weight ?? 1} className="min-h-12 w-24 rounded-control border-2 border-field-border bg-surface px-3 text-base" />
+                </label>
+                {c ? (
+                  <label className="flex min-h-12 items-center gap-2 text-sm">
+                    <input type="checkbox" name="active" defaultChecked={c.active} className="size-6 accent-primary" />
+                    {t.desk_criteria_active}
+                  </label>
+                ) : null}
+                <PendingButton variant="secondary" pendingLabel={t.desk_routing_saving} className="!min-h-12">
+                  {c ? t.desk_routing_save : t.desk_criteria_add}
+                </PendingButton>
+              </StatefulForm>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="tk-card p-5">
         <h2 className="mb-3 text-lg font-semibold">{t.desk_members}</h2>

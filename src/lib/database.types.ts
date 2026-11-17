@@ -509,6 +509,393 @@ export type Database = {
           },
         ]
       }
+      idea_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          idea_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          idea_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          idea_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_comments_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_comments_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_criteria: {
+        Row: {
+          active: boolean
+          company_id: string
+          id: string
+          name_en: string
+          name_th: string
+          weight: number
+        }
+        Insert: {
+          active?: boolean
+          company_id: string
+          id?: string
+          name_en?: string
+          name_th: string
+          weight?: number
+        }
+        Update: {
+          active?: boolean
+          company_id?: string
+          id?: string
+          name_en?: string
+          name_th?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_criteria_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_outcomes: {
+        Row: {
+          created_at: string
+          id: string
+          idea_id: string
+          metric: string
+          note: string
+          period_end: string
+          period_start: string
+          recorded_by: string
+          value: number
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idea_id: string
+          metric: string
+          note?: string
+          period_end: string
+          period_start: string
+          recorded_by: string
+          value: number
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idea_id?: string
+          metric?: string
+          note?: string
+          period_end?: string
+          period_start?: string
+          recorded_by?: string
+          value?: number
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_outcomes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_outcomes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_scores: {
+        Row: {
+          comment: string
+          criterion_id: string
+          idea_id: string
+          score: number
+          scorer_id: string
+        }
+        Insert: {
+          comment?: string
+          criterion_id: string
+          idea_id: string
+          score: number
+          scorer_id: string
+        }
+        Update: {
+          comment?: string
+          criterion_id?: string
+          idea_id?: string
+          score?: number
+          scorer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_scores_criterion_id_fkey"
+            columns: ["criterion_id"]
+            isOneToOne: false
+            referencedRelation: "idea_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_scores_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_scores_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_scores_scorer_id_fkey"
+            columns: ["scorer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_stage_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_stage: string | null
+          id: number
+          idea_id: string
+          note: string
+          to_stage: string | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: never
+          idea_id: string
+          note?: string
+          to_stage?: string | null
+          type?: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: never
+          idea_id?: string
+          note?: string
+          to_stage?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_stage_events_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_stage_events_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_votes: {
+        Row: {
+          created_at: string
+          idea_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          idea_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          idea_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_votes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_votes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ideas: {
+        Row: {
+          company_id: string
+          created_at: string
+          decision_reason: string
+          escalation_level: number
+          expected_benefit: string
+          first_response_at: string | null
+          id: string
+          linked_report_id: string | null
+          owner_id: string
+          problem_or_opportunity: string
+          resources_needed: string
+          respond_by: string
+          stage: string
+          stage_entered_at: string
+          submitter_id: string
+          target_customers: string
+          title: string
+          type_key: string
+          updated_at: string
+          visibility: string
+          vote_count: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          decision_reason?: string
+          escalation_level?: number
+          expected_benefit?: string
+          first_response_at?: string | null
+          id?: string
+          linked_report_id?: string | null
+          owner_id: string
+          problem_or_opportunity?: string
+          resources_needed?: string
+          respond_by: string
+          stage?: string
+          stage_entered_at?: string
+          submitter_id: string
+          target_customers?: string
+          title: string
+          type_key: string
+          updated_at?: string
+          visibility?: string
+          vote_count?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          decision_reason?: string
+          escalation_level?: number
+          expected_benefit?: string
+          first_response_at?: string | null
+          id?: string
+          linked_report_id?: string | null
+          owner_id?: string
+          problem_or_opportunity?: string
+          resources_needed?: string
+          respond_by?: string
+          stage?: string
+          stage_entered_at?: string
+          submitter_id?: string
+          target_customers?: string
+          title?: string
+          type_key?: string
+          updated_at?: string
+          visibility?: string
+          vote_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_linked_report_id_fkey"
+            columns: ["linked_report_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_linked_report_id_fkey"
+            columns: ["linked_report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_submitter_id_fkey"
+            columns: ["submitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           code_hash: string
@@ -1437,6 +1824,29 @@ export type Database = {
           },
         ]
       }
+      group_ideas: {
+        Row: {
+          company_id: string | null
+          company_name: string | null
+          expected_benefit: string | null
+          id: string | null
+          problem_or_opportunity: string | null
+          stage: string | null
+          submitter_name: string | null
+          title: string | null
+          type_key: string | null
+          vote_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_reports: {
         Row: {
           category_id: string | null
@@ -1530,6 +1940,40 @@ export type Database = {
         }
         Returns: string
       }
+      idea_add_outcome: {
+        Args: {
+          p_end: string
+          p_idea: string
+          p_metric: string
+          p_note?: string
+          p_start: string
+          p_value: number
+        }
+        Returns: string
+      }
+      idea_assign: {
+        Args: { p_id: string; p_owner: string }
+        Returns: undefined
+      }
+      idea_score: {
+        Args: {
+          p_comment?: string
+          p_criterion: string
+          p_idea: string
+          p_score: number
+        }
+        Returns: undefined
+      }
+      idea_set_visibility: {
+        Args: { p_id: string; p_visibility: string }
+        Returns: undefined
+      }
+      idea_toggle_vote: { Args: { p_id: string }; Returns: boolean }
+      idea_transition: {
+        Args: { p_id: string; p_note?: string; p_to: string }
+        Returns: undefined
+      }
+      idea_verify_outcome: { Args: { p_outcome: string }; Returns: undefined }
       import_roster: {
         Args: { p_company: string; p_rows: Json }
         Returns: number
@@ -1578,6 +2022,16 @@ export type Database = {
         Args: { p_active: boolean; p_category: string }
         Returns: undefined
       }
+      set_criteria: {
+        Args: {
+          p_active: boolean
+          p_company: string
+          p_id: string
+          p_name_th: string
+          p_weight: number
+        }
+        Returns: string
+      }
       set_routing: {
         Args: {
           p_category: string
@@ -1600,6 +2054,20 @@ export type Database = {
           status: string
           title: string
         }[]
+      }
+      submit_idea: {
+        Args: {
+          p_benefit: string
+          p_company: string
+          p_customers: string
+          p_id: string
+          p_problem: string
+          p_report?: string
+          p_resources: string
+          p_title: string
+          p_type: string
+        }
+        Returns: string
       }
       submit_report: {
         Args: {
