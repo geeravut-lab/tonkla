@@ -38,7 +38,12 @@ export async function AppShell({ children }: { children: ReactNode }) {
   if (session.isAdmin) topics.push("adm");
   if (session.isAnonHandler) topics.push("anon");
   const fallbackKeys = ["notif", ...(session.coordinatedCompanies.length ? ["desk"] : [])].join(",");
-  const badges = { inbox: unread };
+  let deskPending = 0;
+  if (!isFixtureMode() && session.coordinatedCompanies.length) {
+    const sb = await createClient();
+    deskPending = (await sb.from("join_requests").select("id", { count: "exact", head: true }).eq("status", "pending").neq("user_id", session.userId)).count ?? 0;
+  }
+  const badges = { inbox: unread, desk: deskPending };
   const account = accountLabel(session);
   return (
     <div className="flex min-h-dvh">
