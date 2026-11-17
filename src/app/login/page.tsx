@@ -5,6 +5,7 @@ import { LogoMark } from "@/components/ui/LogoMark";
 import { Icon } from "@/components/ui/Icon";
 import { getSession } from "@/lib/session";
 import { LoginButtons } from "./LoginButtons";
+import { PasswordLogin } from "./PasswordLogin";
 
 export async function generateMetadata() {
   return { title: (await getDict()).login_title };
@@ -35,6 +36,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </p>
         ) : null}
         <LoginButtons lineHref={lineHref} />
+        <PasswordLogin />
         <p className="text-sm text-muted">{t.login_note}</p>
       </div>
       <p className="flex items-center justify-center gap-2 rounded-control bg-info-bg px-3 py-2 text-sm text-info-fg">
