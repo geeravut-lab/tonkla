@@ -11,6 +11,8 @@ const ITEMS: { href: string; label: DictKey; icon: IconName }[] = [
   { href: "/admin/admins", label: "admin_admins", icon: "user" },
   { href: "/admin/companies", label: "admin_companies", icon: "building" },
   { href: "/admin/messaging", label: "mg_title", icon: "bell" },
+  { href: "/admin/ai", label: "ai_title", icon: "bulb" },
+  { href: "/admin/prompts", label: "admin_ai_prompts", icon: "megaphone" },
   { href: "/admin/privacy", label: "admin_privacy", icon: "lock" },
   { href: "/admin/automation", label: "auto_title", icon: "clock" },
   { href: "/admin/analytics", label: "admin_analytics", icon: "chart" },

@@ -14,6 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_daily: {
+        Row: {
+          calls: number
+          day: string
+          input_tokens: number
+          output_tokens: number
+          task: string
+        }
+        Insert: {
+          calls?: number
+          day?: string
+          input_tokens?: number
+          output_tokens?: number
+          task: string
+        }
+        Update: {
+          calls?: number
+          day?: string
+          input_tokens?: number
+          output_tokens?: number
+          task?: string
+        }
+        Relationships: []
+      }
+      ai_prompt_versions: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: number
+          review: Json
+          task: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          review?: Json
+          task: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          review?: Json
+          task?: string
+        }
+        Relationships: []
+      }
+      ai_settings: {
+        Row: {
+          enabled: boolean
+          fallback_model: string | null
+          fallback_provider: string | null
+          model: string | null
+          provider: string | null
+          task: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          fallback_model?: string | null
+          fallback_provider?: string | null
+          model?: string | null
+          provider?: string | null
+          task: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          fallback_model?: string | null
+          fallback_provider?: string | null
+          model?: string | null
+          provider?: string | null
+          task?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ai_usage_log: {
+        Row: {
+          at: string
+          error_code: string | null
+          id: number
+          input_tokens: number | null
+          model: string
+          outcome: string
+          output_tokens: number | null
+          provider: string
+          task: string
+        }
+        Insert: {
+          at?: string
+          error_code?: string | null
+          id?: never
+          input_tokens?: number | null
+          model: string
+          outcome: string
+          output_tokens?: number | null
+          provider: string
+          task: string
+        }
+        Update: {
+          at?: string
+          error_code?: string | null
+          id?: never
+          input_tokens?: number | null
+          model?: string
+          outcome?: string
+          output_tokens?: number | null
+          provider?: string
+          task?: string
+        }
+        Relationships: []
+      }
       aivora_links: {
         Row: {
           aivora_user_id: string
@@ -2202,6 +2322,21 @@ export type Database = {
         Returns: string
       }
       admin_purge_audit: { Args: { p_before: string }; Returns: number }
+      admin_save_prompt: {
+        Args: { p_body: string; p_review: Json; p_task: string }
+        Returns: number
+      }
+      admin_set_ai_route: {
+        Args: {
+          p_enabled: boolean
+          p_fb_model: string
+          p_fb_provider: string
+          p_model: string
+          p_provider: string
+          p_task: string
+        }
+        Returns: undefined
+      }
       admin_set_coordinator: {
         Args: { p_company: string; p_email: string }
         Returns: string
@@ -2212,6 +2347,10 @@ export type Database = {
       }
       admin_update_company: {
         Args: { p_id: string; p_sla: number; p_status: string }
+        Returns: undefined
+      }
+      ai_count: {
+        Args: { p_in: number; p_out: number; p_task: string }
         Returns: undefined
       }
       announcement_readership: {

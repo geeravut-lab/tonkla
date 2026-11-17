@@ -81,3 +81,28 @@ describe("PDPA", () => {
     expect((await h.db.query("select * from public.message_log")).rows.length).toBe(1);
   });
 });
+
+describe("AI administration", () => {
+  it("only platform admins can read or change routes and prompts", async () => {
+    expect(await h.denied(U.alice, "select public.admin_set_ai_route('translate', true, 'google', 'gemini-x', null, null)")).toMatch(/err_forbidden/);
+    expect(await h.denied(U.carol, "select public.admin_save_prompt('translate', 'be brief', '{}'::jsonb)")).toMatch(/err_forbidden/);
+    await h.asCommit(U.frank, async (q) => q("select public.admin_set_ai_route('translate', true, 'google', 'gemini-3-flash-preview', 'anthropic', 'claude-haiku-5-5')"));
+    expect((await h.as(U.frank, async (q) => (await q("select * from public.ai_settings")).rows.length))).toBe(1);
+    expect((await h.as(U.alice, async (q) => (await q("select * from public.ai_settings")).rows.length))).toBe(0);
+  });
+  it("model names and providers are validated by the database", async () => {
+    expect(await h.denied(U.frank, "select public.admin_set_ai_route('translate', true, 'openai', 'x', null, null)")).toMatch(/check/);
+    expect(await h.denied(U.frank, "select public.admin_set_ai_route('translate', true, 'google', 'bad model; drop', null, null)")).toMatch(/check/);
+    expect(await h.denied(U.frank, "select public.admin_save_prompt('translate', repeat('x', 1501), '{}'::jsonb)")).toMatch(/check/);
+  });
+  it("prompt history is insert-only and the change is recorded", async () => {
+    await h.asCommit(U.frank, async (q) => q("select public.admin_save_prompt('translate', 'ใช้ภาษาสุภาพ', '{\"verdict\":\"ok\"}'::jsonb)"));
+    await expect(h.db.query("update public.ai_prompt_versions set body = 'x'")).rejects.toThrow(/append-only/);
+    await expect(h.db.query("delete from public.ai_prompt_versions")).rejects.toThrow(/append-only/);
+    expect((await h.db.query("select * from public.audit_log where action = 'db.ai_settings.insert'")).rows.length).toBeGreaterThan(0);
+  });
+  it("browser clients cannot write usage counters", async () => {
+    expect(await h.denied(U.frank, "select public.ai_count('translate', 1, 1)")).toMatch(/permission denied/);
+    expect(await h.denied(U.frank, "insert into public.ai_usage_log (task, provider, model, outcome) values ('t','google','m','error')")).toMatch(/permission denied/);
+  });
+});

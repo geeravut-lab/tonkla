@@ -19,6 +19,9 @@ function renderMessage(msg: string | undefined, t: ReturnType<typeof useT>, fall
   if (msg.startsWith("n:")) return fmt(t.desk_roster_done, { n: msg.slice(2) });
   if (msg.startsWith("code:")) return fmt(t.desk_invite_show, { code: msg.slice(5) });
   if (msg.startsWith("purged:")) return fmt(t.audit_purged, { n: msg.slice(7) });
+  if (msg === "ok") return fallback;
+  if (msg.startsWith("rejected:")) return fmt(t.prompts_rejected, { reasons: msg.slice(9).split(",").map((r) => (t as Record<string, string>)[`scr_${r}`] ?? r).join(", ") });
+  if (msg.startsWith("risky:")) return fmt(t.prompts_review_risky, { reason: msg.slice(6) });
   return msg;
 }
 
@@ -30,7 +33,8 @@ export function StatefulForm({ action, children, className, successText }: Props
       {children}
       <div aria-live="polite" className="mt-2 min-h-6 text-sm">
         {state?.ok === false ? <p role="alert" className="font-medium text-danger-fg">⚠ {errorText(state.error, t)}</p> : null}
-        {state?.ok ? <p className="font-medium text-success-fg">✓ {renderMessage(state.message, t, successText ?? t.desk_done)}</p> : null}
+        {state?.ok && /^(rejected|risky):/.test(state.message ?? "") ? <p role="alert" className="font-medium text-danger-fg">⚠ {renderMessage(state.message, t, "")}</p> : null}
+        {state?.ok && !/^(rejected|risky):/.test(state.message ?? "") ? <p className="font-medium text-success-fg">✓ {renderMessage(state.message, t, successText ?? t.desk_done)}</p> : null}
       </div>
     </form>
   );
