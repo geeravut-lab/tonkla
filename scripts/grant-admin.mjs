@@ -1,11 +1,12 @@
 // Seats the FIRST platform administrator (there is no "become admin" page). Run once after that person has signed in.
-//   node scripts/grant-admin.mjs <email> [--owner]
+//   node scripts/grant-admin.mjs <email> [--owner] [--force-password-change]
 // --owner also records the e-mail as the protected owner account (admin rights can never be removed from it).
 // Uses the Supabase Management API like db-migrate.mjs (token injected by the proxy or SUPABASE_ACCESS_TOKEN).
 const REF = process.env.SUPABASE_PROJECT_REF || "yfowqsfyfvzgwqdbkykx";
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 const email = (process.argv[2] || "").trim().toLowerCase();
 const owner = process.argv.includes("--owner");
+const forceChange = process.argv.includes("--force-password-change"); // for break-glass accounts created in the Supabase dashboard
 if (!/^[^@\s'";]+@[^@\s'";]+\.[^@\s'";]+$/.test(email)) {
   console.error("usage: node scripts/grant-admin.mjs <email> [--owner]");
   process.exit(1);
@@ -26,7 +27,7 @@ if (rows.length !== 1) {
   process.exit(2);
 }
 await sql(`insert into public.profiles (id) values ('${rows[0].id}') on conflict (id) do nothing;
-  update public.profiles set status = 'active' where id = '${rows[0].id}';
+  update public.profiles set status = 'active'${forceChange ? ', must_change_password = true' : ''} where id = '${rows[0].id}';
   insert into public.platform_admins (user_id) values ('${rows[0].id}') on conflict do nothing;
   ${owner ? `insert into public.platform_settings (key, value) values ('owner', jsonb_build_object('email', '${email}')) on conflict (key) do update set value = excluded.value;` : ""}`);
 console.log(`administrator seated${owner ? " (owner)" : ""}`);

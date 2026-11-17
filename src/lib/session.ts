@@ -101,6 +101,7 @@ export async function requireSession(): Promise<Session> {
 export async function requireActive(): Promise<Session> {
   const s = await requireSession();
   if (s.status === "suspended") redirect("/login");
+  if (s.mustChangePassword) redirect("/password"); // a password set by someone else must be replaced first
   if (s.status === "pending") redirect("/join");
   if (!s.hasConsent) redirect("/consent");
   return s;

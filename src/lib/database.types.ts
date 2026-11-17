@@ -2452,6 +2452,7 @@ export type Database = {
         }[]
       }
       my_data_export: { Args: never; Returns: Json }
+      notify_self_password_changed: { Args: never; Returns: undefined }
       notify_system: {
         Args: {
           p_dedupe: string

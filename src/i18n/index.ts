@@ -7,11 +7,12 @@ import * as ideas from "./dict/ideas";
 import * as messaging from "./dict/messaging";
 import * as dash from "./dict/dash";
 import * as ai from "./dict/ai";
+import * as password from "./dict/password";
 
 // Add a module here when a milestone adds a dictionary file.
-const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai];
+const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai, password];
 
-type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th;
+type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th & typeof password.th;
 export type Dict = { [K in keyof ThAll]: string };
 export type DictKey = keyof Dict;
 export type Locale = "th" | "en";

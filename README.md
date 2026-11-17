@@ -7,4 +7,4 @@ Portal กลางสำหรับกลุ่มบริษัท: สื�
 - สารบัญ knowledge: [docs/Knowledge-Index.md](docs/Knowledge-Index.md)
 - คำแนะนำสำหรับ Claude Code: [CLAUDE.md](CLAUDE.md)
 
-สถานะ: ยังไม่มีโค้ด ข้อเสนอ tech stack และแผนทุกเฟสรอเจ้าของอนุมัติ
+สถานะ: เฟส 1 สร้างครบ M1.1–M1.8 และ deploy แล้ว (ดู [docs/RUNBOOK.md](docs/RUNBOOK.md)) · M1.9 รอข้อมูลจริงจากเจ้าของ

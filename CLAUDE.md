@@ -6,13 +6,13 @@ Read `docs/spec.md` before doing anything. It is the source of truth for scope, 
 
 ## Current state
 
-Greenfield. No application code yet. The tech stack, data model, UX/UI and all-phase build plan were **approved by the owner on 16 Nov 2026** (all of D1–D15 as recommended; Microsoft 365 login is deferred; app URL is https://tonkla-th.vercel.app):
+Phase 1 (M1.1 to M1.8) is built and deployed; M1.9 (pilot with real companies) needs real data from the owner. See `docs/RUNBOOK.md` for how to operate it. The tech stack, data model, UX/UI and all-phase build plan were **approved by the owner on 16 Nov 2026** (all of D1–D15 as recommended; Microsoft 365 login is deferred; app URL is https://tonkla-th.vercel.app):
 
 - `docs/TONKLA-PLAN-KNOWLEDGE.md` (stack, architecture, phases, decisions D1–D14)
 - `docs/TONKLA-DATA-MODEL-KNOWLEDGE.md` (tables, RLS, minimum permission tests)
 - `docs/TONKLA-UX-UI-KNOWLEDGE.md` and `docs/design/` (look and feel, logo, favicon, preview page)
 
-Build milestone by milestone as listed in the plan (M1.1 first). Do not start a later milestone's work until the owner asks.
+Phase 2 work follows the plan (section 8). Before changing anything, run `npm run check`, the e2e tests (`npx playwright test`) and, after migrations, `npm run db:migrate`, `npm run db:types` and `npm run smoke`.
 
 `docs/Knowledge-Index.md` indexes the knowledge files copied from RooSuk and ThaiPass. They describe proven patterns and the bugs that came with them; the plan (section 9) says which Tonkla feature uses each one. Read the knowledge file for a feature before building it.
 

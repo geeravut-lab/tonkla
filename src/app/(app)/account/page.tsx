@@ -51,6 +51,12 @@ export default async function AccountPage() {
         {t.ln_title}
       </PendingLink>
 
+      {providers.includes("email") ? (
+        <PendingLink href="/password" icon={<Icon name="lock" />} className="tk-card flex min-h-16 items-center gap-3 p-4 font-semibold text-primary-hover">
+          {t.pw_link}
+        </PendingLink>
+      ) : null}
+
       <PendingLink href="/account/privacy" icon={<Icon name="shield" />} className="tk-card flex min-h-16 items-center gap-3 p-4 font-semibold text-primary-hover">
         {t.privacy_title}
       </PendingLink>
