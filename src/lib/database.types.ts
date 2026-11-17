@@ -447,6 +447,7 @@ export type Database = {
           status: string
           template_id: string | null
           updated_at: string
+          wave_id: string | null
         }
         Insert: {
           business_unit_id?: string | null
@@ -461,6 +462,7 @@ export type Database = {
           status?: string
           template_id?: string | null
           updated_at?: string
+          wave_id?: string | null
         }
         Update: {
           business_unit_id?: string | null
@@ -475,6 +477,7 @@ export type Database = {
           status?: string
           template_id?: string | null
           updated_at?: string
+          wave_id?: string | null
         }
         Relationships: [
           {
@@ -489,6 +492,13 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "company_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companies_wave_id_fkey"
+            columns: ["wave_id"]
+            isOneToOne: false
+            referencedRelation: "rollout_waves"
             referencedColumns: ["id"]
           },
         ]
@@ -527,6 +537,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "company_channels_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_checklist: {
+        Row: {
+          company_id: string
+          done_at: string
+          done_by: string | null
+          item: string
+        }
+        Insert: {
+          company_id: string
+          done_at?: string
+          done_by?: string | null
+          item: string
+        }
+        Update: {
+          company_id?: string
+          done_at?: string
+          done_by?: string | null
+          item?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_checklist_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -2103,6 +2142,44 @@ export type Database = {
           },
         ]
       }
+      rollout_waves: {
+        Row: {
+          business_unit_id: string | null
+          created_at: string
+          features: string[]
+          id: string
+          name: string
+          planned_on: string | null
+          status: string
+        }
+        Insert: {
+          business_unit_id?: string | null
+          created_at?: string
+          features?: string[]
+          id?: string
+          name: string
+          planned_on?: string | null
+          status?: string
+        }
+        Update: {
+          business_unit_id?: string | null
+          created_at?: string
+          features?: string[]
+          id?: string
+          name?: string
+          planned_on?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rollout_waves_business_unit_id_fkey"
+            columns: ["business_unit_id"]
+            isOneToOne: false
+            referencedRelation: "business_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roster_entries: {
         Row: {
           batch_id: string | null
@@ -2306,7 +2383,16 @@ export type Database = {
     }
     Functions: {
       ack_announcement: { Args: { p_id: string }; Returns: undefined }
+      admin_activate_company: {
+        Args: { p_company: string }
+        Returns: undefined
+      }
+      admin_activate_wave: { Args: { p_wave: string }; Returns: Json }
       admin_analytics: { Args: { p_days?: number }; Returns: Json }
+      admin_assign_wave: {
+        Args: { p_company: string; p_wave: string }
+        Returns: undefined
+      }
       admin_create_bu: {
         Args: { p_name_en?: string; p_name_th: string }
         Returns: string
@@ -2318,6 +2404,15 @@ export type Database = {
           p_name_en: string
           p_name_th: string
           p_template: string
+        }
+        Returns: string
+      }
+      admin_create_wave: {
+        Args: {
+          p_bu: string
+          p_features: string[]
+          p_name: string
+          p_planned: string
         }
         Returns: string
       }
@@ -2335,6 +2430,10 @@ export type Database = {
           p_provider: string
           p_task: string
         }
+        Returns: undefined
+      }
+      admin_set_checklist: {
+        Args: { p_company: string; p_done: boolean; p_item: string }
         Returns: undefined
       }
       admin_set_coordinator: {
@@ -2370,6 +2469,7 @@ export type Database = {
         Args: { p_company: string; p_days?: number }
         Returns: Json
       }
+      company_readiness: { Args: { p_company: string }; Returns: Json }
       create_invitation: {
         Args: { p_company: string; p_ttl_hours?: number }
         Returns: string

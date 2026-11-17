@@ -8,6 +8,7 @@ import { StatefulForm } from "@/components/ui/StatefulForm";
 import { createInvite, decideJoin, endMember, importRoster, setRole } from "@/app/actions/desk";
 import { saveRouting } from "@/app/actions/reports";
 import { saveCriterion } from "@/app/actions/ideas";
+import { setChecklist } from "@/app/actions/rollout";
 import { deleteCompanyChannel, saveCompanyChannel, testCompanyChannel } from "@/app/actions/messaging";
 import { listCompanyChannels } from "@/server/channels";
 import { fmt } from "@/i18n";
@@ -29,6 +30,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   let categories: { id: string; name_th: string }[] = [];
   let criteria: { id: string; name_th: string; weight: number; active: boolean }[] = [];
   let channels: Awaited<ReturnType<typeof listCompanyChannels>> = [];
+  let ready: Record<string, boolean> = {};
   let routing = new Map<string, { owner_user_id: string; sla_hours: number | null }>();
   if (!isFixtureMode()) {
     const sb = await createClient();
@@ -42,6 +44,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     ]);
     criteria = crit.data ?? [];
     channels = await listCompanyChannels(company.id);
+    ready = ((await sb.rpc("company_readiness", { p_company: company.id })).data ?? {}) as Record<string, boolean>;
     categories = cats.data ?? [];
     routing = new Map((rr.data ?? []).map((x) => [x.category_id, x]));
     requests = (r.data ?? []) as unknown as Req[];
@@ -64,6 +67,29 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
       ) : (
         <p className="text-muted">{company.name}</p>
       )}
+
+      {Object.keys(ready).length > 0 && !(ready.coordinator && ready.people && ready.categories && ready.criteria && ready.training) ? (
+        <div className="tk-card border-sun p-5">
+          <h2 className="mb-2 text-lg font-semibold">{t.ro_title}</h2>
+          <ul className="mb-3 flex flex-col gap-1">
+            {(["coordinator", "people", "categories", "criteria", "training"] as const).map((i) => (
+              <li key={i} className={ready[i] ? "text-success-fg" : "text-warning-fg"}>
+                {ready[i] ? "✓" : "⚠"} {(t as Record<string, string>)[`ro_item_${i}`]}
+              </li>
+            ))}
+          </ul>
+          {!ready.training ? (
+            <StatefulForm action={setChecklist}>
+              <input type="hidden" name="company" value={company.id} />
+              <input type="hidden" name="item" value="training" />
+              <input type="hidden" name="done" value="yes" />
+              <PendingButton variant="secondary" pendingLabel={t.ro_saving}>
+                {t.ro_confirm_training}
+              </PendingButton>
+            </StatefulForm>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="tk-card p-5">
         <h2 className="mb-3 text-lg font-semibold">{t.desk_requests}</h2>
