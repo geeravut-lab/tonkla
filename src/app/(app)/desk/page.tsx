@@ -13,6 +13,15 @@ import { deleteCompanyChannel, saveCompanyChannel, testCompanyChannel } from "@/
 import { listCompanyChannels } from "@/server/channels";
 import { fmt } from "@/i18n";
 
+/** Pending join requests per company (the database only returns the ones this person may decide on). */
+async function pendingByCompany(userId: string): Promise<Map<string, number>> {
+  const sb = await createClient();
+  const { data } = await sb.from("join_requests").select("company_id").eq("status", "pending").neq("user_id", userId);
+  const m = new Map<string, number>();
+  for (const r of data ?? []) m.set(r.company_id as string, (m.get(r.company_id as string) ?? 0) + 1);
+  return m;
+}
+
 export async function generateMetadata() {
   return { title: (await getDict()).desk_title };
 }
@@ -20,7 +29,10 @@ export async function generateMetadata() {
 export default async function DeskPage({ searchParams }: { searchParams: Promise<{ company?: string }> }) {
   const [t, s, sp] = await Promise.all([getDict(), requireCoordinator(), searchParams]);
   const companies = s.coordinatedCompanies;
-  const company = companies.find((c) => c.id === sp.company) ?? companies[0]!;
+  const pending = isFixtureMode() ? new Map<string, number>() : await pendingByCompany(s.userId);
+  // a coordinator of many companies (the central team) lands on the first company that has someone waiting
+  const company = companies.find((c) => c.id === sp.company) ?? companies.find((c) => (pending.get(c.id) ?? 0) > 0) ?? companies[0]!;
+  const pendingTotal = Array.from(pending.values()).reduce((a, b) => a + b, 0);
 
   type Req = { id: string; note: string | null; profiles: { display_name: string } | null };
   type Mem = { id: string; user_id: string; profiles: { display_name: string } | null };
@@ -56,11 +68,22 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     <section className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold md:text-3xl">{t.desk_title}</h1>
 
+      {pendingTotal > 0 ? (
+        <p className="tk-card border-sun p-4 font-semibold" role="status" data-testid="desk-pending-total">
+          {fmt(t.desk_pending_total, { n: pendingTotal })}
+        </p>
+      ) : null}
+
       {companies.length > 1 ? (
         <nav aria-label={t.desk_company} className="flex flex-wrap gap-2">
           {companies.map((c) => (
             <PendingLink key={c.id} href={`/desk?company=${c.id}`} aria-current={c.id === company.id ? "page" : undefined} className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium ${c.id === company.id ? "bg-primary text-surface" : "bg-mint text-primary-hover"}`}>
               {c.name}
+              {(pending.get(c.id) ?? 0) > 0 ? (
+                <span className="grid min-w-6 place-items-center rounded-full bg-sun px-1.5 text-xs font-bold text-ink tabular-nums" aria-label={fmt(t.desk_pending_count, { n: pending.get(c.id) ?? 0 })} data-testid="desk-pending-badge">
+                  {pending.get(c.id)}
+                </span>
+              ) : null}
             </PendingLink>
           ))}
         </nav>
