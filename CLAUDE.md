@@ -6,9 +6,31 @@ Read `docs/spec.md` before doing anything. It is the source of truth for scope, 
 
 ## Current state
 
-Greenfield. No code yet and the tech stack is not chosen.
+Phase 1 (M1.1 to M1.8) is built and deployed; M1.9 (pilot with real companies) needs real data from the owner. See `docs/RUNBOOK.md` for how to operate it. The tech stack, data model, UX/UI and all-phase build plan were **approved by the owner on 16 Nov 2026** (all of D1–D15 as recommended; Microsoft 365 login is deferred; app URL is https://tonkla-th.vercel.app):
 
-The first task in this repo is to propose a tech stack, a data model and a Phase 1 build plan, then wait for the owner's approval before scaffolding. The stack requirements are listed in `docs/spec.md` section 8.
+- `docs/TONKLA-PLAN-KNOWLEDGE.md` (stack, architecture, phases, decisions D1–D14)
+- `docs/TONKLA-DATA-MODEL-KNOWLEDGE.md` (tables, RLS, minimum permission tests)
+- `docs/TONKLA-UX-UI-KNOWLEDGE.md` and `docs/design/` (look and feel, logo, favicon, preview page)
+
+Phase 2 work follows the plan (section 8). Before changing anything, run `npm run check`, the e2e tests (`npx playwright test`) and, after migrations, `npm run db:migrate`, `npm run db:types` and `npm run smoke`.
+
+`docs/Knowledge-Index.md` indexes the knowledge files copied from RooSuk and ThaiPass. They describe proven patterns and the bugs that came with them; the plan (section 9) says which Tonkla feature uses each one. Read the knowledge file for a feature before building it.
+
+## Infrastructure (set by the owner)
+
+- Hosting: Vercel, **production deployments only**. No preview deployments. Production URL: https://tonkla-th.vercel.app (provisional until the owner picks a domain).
+- Backend: Supabase project `https://yfowqsfyfvzgwqdbkykx.supabase.co` for Auth, Database and Storage. This is the only project, so it is production: every schema change is a migration file, destructive changes are done in two steps and need the owner's approval first.
+- Code: https://github.com/geeravut-lab/tonkla. Work on a branch, verify with CI, merge to `main` to deploy.
+- The owner has asked Claude to operate Supabase and Vercel on their behalf. That needs network access to those hosts and credentials saved through the secure credential form. Never ask for secrets in chat, never write them to the repo, logs or docs, and never put them behind a `NEXT_PUBLIC_` name.
+
+## Standing rules from the owner
+
+- **After every completed task, end the reply with a "ขั้นตอนถัดไป" section** (in Thai): what is still open in the current milestone or phase, what could come next in the following phase, and a recommendation, so the owner can pick what to order next.
+- **Every button, link or menu item that triggers work shows a loading spinner** right where the user pressed, locks against double presses while pending, and clears when the work finishes or fails. Use the shared `PendingButton` / `PendingLink` components only; a lint rule and an e2e test enforce this.
+- Audit trail, AI provider/model settings, AI prompts and rules, branding, feature flags and live sync are admin-configurable features, not hard-coded. See the plan for the owner's exact requirements (R5 to R14).
+- Cross-cutting engineering rules from `docs/Knowledge-Index.md`: count rows after every UPDATE, hiding a button is not disabling a feature, admin-settable values are never duplicated in the UI, fallbacks keep working rather than stop, external notifications are self-explanatory and carry no sensitive content, user-visible errors are readable sentences.
+
+- **Claude tests its own work, including against the live Supabase project.** The owner granted access, so do not ask them to test things you can verify yourself: run unit, database (PGlite), e2e and build checks, then verify migrations, RLS, auth settings, storage and the deployed site directly through the Supabase and Vercel APIs. Use clearly marked test data (`is_demo` companies, `test-` prefixes), remove it afterwards, never touch real employee data, and report what was and was not verified.
 
 ## Rules that hold for all work here
 

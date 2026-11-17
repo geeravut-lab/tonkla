@@ -1,0 +1,80 @@
+# Tonkla: คู่มือใช้งานและดูแลระบบ (Runbook)
+
+อัปเดต 17 พ.ย. 2026 · อ่านคู่กับ [TONKLA-PLAN-KNOWLEDGE.md](./TONKLA-PLAN-KNOWLEDGE.md)
+
+## 1. สถานะเฟส 1
+
+| Milestone | สถานะ | หมายเหตุ |
+| --- | --- | --- |
+| M1.1 โครงและมาตรฐาน | ✅ | Next.js 16, i18n ไทย/อังกฤษ, ตัวหมุนโหลดบังคับด้วย lint, CI, Vercel production-only |
+| M1.2 ตัวตน โครงสร้าง ผู้ดูแล | ✅ | Google + LINE(Aivora) · Microsoft 365 ถูกเลื่อนตามคำสั่ง · audit (เปิด/ปิด + ติ๊กชนิด) · สวิตช์ฟีเจอร์ · อัปโหลดโลโก้ |
+| M1.3 สื่อสาร + live sync | ✅ | ประกาศ+รับทราบ+ความเห็น+ถูกใจ · กล่องแจ้งเตือน · ping ไม่มีข้อมูล + fallback |
+| M1.4 แจ้งปัญหา | ✅ | เจ้าของ+กำหนดตอบ 48 ชม.+ยกระดับอัตโนมัติ+ฉันก็เจอ+รวมซ้ำ+เปิดเผยข้ามบริษัท |
+| M1.5 เสนอไอเดีย | ✅ | 5 ระยะ · เกณฑ์เปิดเผย · โหวต · ผลลัพธ์ที่ต้องมีคนที่สองยืนยัน |
+| M1.6 แจ้งเตือนนอกแอป | ✅ โค้ด · ⏳ รอค่า LINE OA จริง | ผูก LINE ด้วยรหัส, การ์ด Flex, คิว/retry/โควตา, webhook Teams/Google Chat · **อีเมลยังไม่ทำ (ต้องมี domain ของตัวเอง D8)** |
+| M1.7 Dashboard + PDPA | ✅ | ตัวเลขรวมรายบริษัท · ส่งออกข้อมูล · ขอลบ=ทำให้ไม่ระบุตัวตน · ลบข้อมูลเก่าอัตโนมัติ |
+| M1.8 โครง AI | ✅ ปิดไว้ | provider/model ต่องาน, คำสั่งเพิ่มที่ผ่านด่านตรวจ 2 ชั้น · ยังไม่มีฟีเจอร์ AI ฝั่งพนักงาน |
+| M1.9 นำร่อง | ⏳ | ต้องมีข้อมูลจริง (ข้อ 6) |
+
+## 2. คำสั่งที่ใช้บ่อย
+
+```bash
+npm run check          # lint + typecheck + unit/RLS tests (PGlite)
+npx playwright test    # e2e ที่ 390x844 และ 1280x800
+npm run db:migrate     # ใช้ migration ใหม่กับ Supabase (ต้องมี token ใน proxy หรือ SUPABASE_ACCESS_TOKEN)
+npm run db:types       # สร้าง src/lib/database.types.ts ใหม่หลัง migration
+npm run smoke          # ทดสอบสิทธิ์/ขั้นตอนหลักกับฐานข้อมูลจริง (rollback เสมอ ไม่ทิ้งข้อมูล)
+```
+
+ในสภาพแวดล้อมของ agent ให้ใส่ `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` นำหน้า `node scripts/...`
+
+กฎ migration: ไฟล์ใน `supabase/migrations/` เท่านั้น · ผ่านเทส PGlite ก่อน · แล้ว `db:migrate` → `db:types` → `smoke` · ห้ามแก้ผ่านหน้าเว็บ Supabase · migration ที่ทำลายข้อมูลทำ 2 ขั้นและขออนุมัติก่อน
+
+## 3. ตั้งค่าครั้งแรก (ผู้ดูแลทำ)
+
+1. **แอดมินคนแรก**: ให้คนนั้นล็อกอินด้วย Google หรือ LINE หนึ่งครั้ง แล้วรัน `node scripts/grant-admin.mjs <อีเมล> --owner` (บัญชี `--owner` ถอดสิทธิ์ไม่ได้) · บัญชีสำรองแบบรหัสผ่าน (break-glass): สร้างใน Supabase Auth แล้วรันด้วย `--force-password-change`
+2. **Supabase Auth** (ตั้งแล้ว): Site URL และ Redirect `https://tonkla-th.vercel.app/**` · Google เปิดอยู่ · อีเมลต้องยืนยัน
+3. **สร้างบริษัท**: `/admin/companies` สร้างกลุ่มธุรกิจ แล้วสร้างบริษัทจากแม่แบบ (ได้หมวดปัญหาและเกณฑ์ไอเดียมาให้) ใส่อีเมลผู้ประสานงานคนแรก (ต้องล็อกอินมาแล้ว)
+4. **ผู้ประสานงาน** (`/desk`): นำเข้ารายชื่อ CSV (อีเมล,รหัส,ชื่อ) · สร้างรหัสเชิญสำหรับคนไม่มีอีเมลองค์กร · อนุมัติคำขอเข้าร่วม · ตั้งผู้รับผิดชอบรายหมวดและเกณฑ์ไอเดีย
+5. **สวิตช์ฟีเจอร์**: `/admin/features` (ผู้ช่วย AI ปิดอยู่เป็นค่าเริ่มต้น)
+
+### LINE
+1. สร้าง LINE Official Account + เปิด Messaging API → จด Channel secret, Channel access token (long-lived), Basic ID
+2. เข้า `/admin/messaging` กรอกสามค่า (เก็บฝั่งเซิร์ฟเวอร์ ไม่แสดงกลับ) หรือใส่ที่ Vercel เป็น `LINE_CHANNEL_SECRET`, `LINE_CHANNEL_ACCESS_TOKEN`, `LINE_BASIC_ID`
+3. ใน LINE Developers ตั้ง Webhook URL = `https://tonkla-th.vercel.app/api/line/webhook` → เปิด Use webhook → กด Verify (ต้องได้ 200) · ปิด Auto-reply และ Greeting message
+4. ตรวจแพ็กเกจ/โควตาข้อความของ OA แล้วตั้งเพดานที่ `/admin/messaging` (ค่าเริ่มต้น 1,000/เดือน เหลือสำรอง 100 สำหรับข้อความด่วน)
+5. ทดสอบ: `/account/notifications` ผูกบัญชีตัวเอง → "ส่งข้อความทดสอบ" · ทดสอบบนเครื่องจริง iOS และ Android
+
+### Aivora SSO
+ต้องให้เจ้าของ hub ลงทะเบียน slug `tonkla` และ callback `https://tonkla-th.vercel.app/sso/callback` แล้วทดสอบ 3 เส้นทาง (ล็อกอินเดิม / Launcher ปกติ / Launcher ใน LINE) ตามท้าย `docs/SSO-Aivora-Supabase.md`
+
+### AI (ไม่จำเป็นในเฟส 1)
+`/admin/ai` ใส่คีย์ Anthropic/Google (หรือใส่ใน Vercel เป็น `ANTHROPIC_API_KEY`/`GOOGLE_AI_API_KEY`) → กด "ทดสอบ" ต่อรุ่น · ห้ามใช้ free tier กับข้อมูลจริง · ฟีเจอร์ AI ฝั่งพนักงานยังไม่มี
+
+## 4. ระบบตามเวลา (อยู่ในฐานข้อมูล)
+
+| งาน | ตารางเวลา | ทำอะไร |
+| --- | --- | --- |
+| `tonkla-tick` | ทุก 10 นาที | `public.run_tick()` เตือนใกล้ครบกำหนด / ยกระดับเรื่องและไอเดียเกินกำหนด / เตือนรับทราบประกาศ |
+| `tonkla-flush` | ทุก 2 นาที | เรียก `/api/cron/tick` (pg_net, Bearer `CRON_SECRET`) → ส่งคิว LINE และ webhook Teams/Google Chat |
+| `tonkla-prune` | ทุกวัน 03:30 | ลบ log/คิวเก่า |
+
+ตรวจ: `select jobname, schedule, active from cron.job;` และ `select * from cron_ticks order by id desc limit 5;` · ความลับของ cron อยู่ใน `platform_settings.cron` (เฉพาะเซิร์ฟเวอร์) และ Vercel `CRON_SECRET`
+
+## 5. ความเสี่ยงที่รู้และวิธีรับมือ
+
+- ฐานข้อมูลเดียว = production: ก่อนเปิดนำร่องจริงให้ตรวจ backup/PITR ของแพ็กเกจ Supabase
+- Region ฐานข้อมูลคือซิดนีย์ (D15): ผู้ใช้ในไทยจะช้ากว่าสิงคโปร์เล็กน้อย
+- ความลับ LINE/AI ที่ผู้ดูแลบันทึกในระบบเก็บในตารางฝั่งเซิร์ฟเวอร์ (ไม่เข้ารหัสระดับคอลัมน์) ถ้าต้องการเข้มกว่านี้ให้ย้ายไป Supabase Vault หรือใส่เป็นตัวแปรที่ Vercel (ตัวแปรมีความสำคัญกว่าค่าที่บันทึก)
+- CSP ใช้ `'unsafe-inline'` สำหรับสคริปต์ จนกว่าจะเปลี่ยนเป็นแบบ nonce
+- อีเมลแจ้งเตือน: ยังไม่ทำ (ต้องมี domain ของตัวเอง)
+
+## 6. ที่ต้องมีจากเจ้าของก่อนปิดเฟส 1 (M1.9)
+
+1. อีเมลของผู้ดูแลคนแรก/เจ้าของ (รัน `grant-admin.mjs`)
+2. ลงทะเบียน slug `tonkla` ที่ Aivora hub
+3. LINE OA: secret, token, Basic ID และ webhook
+4. บริษัทนำร่อง 3–5 แห่ง + ผู้ประสานงานของแต่ละบริษัท + รายชื่อพนักงาน (CSV)
+5. ทดสอบบนเครื่องจริง: iPhone Safari/PWA, Android Chrome, เบราว์เซอร์ใน LINE
+6. ให้ฝ่ายกฎหมายทบทวนข้อความ PDPA (ร่างที่ `src/i18n/dict/identity.ts` ส่วน consent)
+7. วัดเกณฑ์ผ่านเฟส: ทุกเรื่องได้คำตอบตามกำหนด และมีเรื่องที่นำไปใช้จริง (ดูตัวเลขที่ `/dashboard`)
