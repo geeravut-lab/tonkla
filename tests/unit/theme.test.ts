@@ -20,7 +20,7 @@ const ratio = (a: string, b: string) => {
 const TEXT: [string, string, number][] = [
   ["ink", "bg", 4.5], ["ink", "surface", 4.5], ["muted", "bg", 4.5], ["muted", "surface", 4.5], ["muted", "mint", 4.5],
   ["surface", "primary", 4.5], ["surface", "primary-hover", 4.5], ["primary", "surface", 4.5], ["primary", "bg", 4.5], ["primary", "mint", 4.5],
-  ["primary-hover", "mint", 4.5], ["ink", "leaf", 4.5], ["ink", "sprout", 4.5], ["ink", "sun", 4.5],
+  ["primary-hover", "mint", 4.5], ["primary-hover", "nav-active", 4.5], ["ink", "nav-active", 4.5], ["muted", "nav-active", 4.5], ["ink", "leaf", 4.5], ["ink", "sprout", 4.5], ["ink", "sun", 4.5],
   ["success-fg", "success-bg", 4.5], ["warning-fg", "warning-bg", 4.5], ["danger-fg", "danger-bg", 4.5], ["surface", "danger-fg", 4.5], ["info-fg", "info-bg", 4.5],
   ["field-border", "surface", 3], ["field-border", "bg", 3],
 ];

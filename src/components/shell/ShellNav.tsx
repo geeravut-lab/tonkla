@@ -45,7 +45,7 @@ export function Sidebar({ items = NAV, badges = {} }: Props) {
                   href={it.href}
                   aria-current={active ? "page" : undefined}
                   icon={<Icon name={it.icon} />}
-                  className={`flex min-h-11 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-mint font-bold text-primary-hover" : "text-ink hover:bg-bg"}`}
+                  className={`flex min-h-11 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-nav-active font-bold text-primary-hover" : "text-ink hover:bg-bg"}`}
                 >
                   {t[it.label]}
                   <Badge n={badges[it.key] ?? 0} />
@@ -157,7 +157,7 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
               href={it.href}
               aria-current={active ? "page" : undefined}
               icon={<Icon name={it.icon} />}
-              className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-control text-xs ${active ? "font-bold text-primary-hover" : "font-medium text-muted"}`}
+              className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-control text-xs ${active ? "bg-nav-active font-bold text-primary-hover" : "font-medium text-muted"}`}
             >
               {t[it.label]}
             </PendingLink>
@@ -168,7 +168,7 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
           onClick={() => (open ? closeSheet() : openSheet())}
           aria-expanded={open}
           aria-haspopup="dialog"
-          className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-control text-xs ${moreActive || open ? "font-bold text-primary-hover" : "font-medium text-muted"}`}
+          className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-control text-xs ${moreActive || open ? "bg-nav-active font-bold text-primary-hover" : "font-medium text-muted"}`}
         >
           <span className="relative">
             <Icon name="more" />
@@ -204,7 +204,7 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
                             e.preventDefault();
                             navigateFromSheet(it.href);
                           }}
-                          className={`flex min-h-12 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-mint font-bold text-primary-hover" : "text-ink"}`}
+                          className={`flex min-h-12 items-center gap-3 rounded-control px-3 font-medium ${active ? "bg-nav-active font-bold text-primary-hover" : "text-ink"}`}
                         >
                           <Icon name={it.icon} />
                           {t[it.label]}
