@@ -145,6 +145,24 @@ begin
   execute 'reset role';
   steps := steps || 'anonymous,';
 
+  -- ---- M2.3: emergency, Q&A, events, polls
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.report_emergency(ca, 'safety', 'smoke place', 'smoke body', null);
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', bob, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.emergency_incidents) <> 0 then raise exception 'FAIL other company reads emergency'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.emergency_incidents) <> 1 then raise exception 'FAIL coordinator cannot read emergency'; end if;
+  perform public.emergency_set_status(v, 'acknowledged', '');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.poll_create(null, 'smoke poll', array['a','b'], false, 'after_vote', now() + interval '1 day');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  perform public.poll_vote(v, array[(select id from public.poll_options where poll_id = v order by pos limit 1)]);
+  if (select count(*) from public.poll_results(v)) <> 2 then raise exception 'FAIL poll results'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.poll_votes) <> 0 then raise exception 'FAIL host sees ballots'; end if;
+  execute 'reset role';
+  steps := steps || 'emergency,poll,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

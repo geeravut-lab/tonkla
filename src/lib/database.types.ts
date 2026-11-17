@@ -888,6 +888,211 @@ export type Database = {
           },
         ]
       }
+      emergency_events: {
+        Row: {
+          actor_id: string
+          body: string
+          created_at: string
+          id: number
+          incident_id: string
+          kind: string
+        }
+        Insert: {
+          actor_id: string
+          body?: string
+          created_at?: string
+          id?: never
+          incident_id: string
+          kind: string
+        }
+        Update: {
+          actor_id?: string
+          body?: string
+          created_at?: string
+          id?: never
+          incident_id?: string
+          kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emergency_incidents: {
+        Row: {
+          body: string
+          category: string
+          company_id: string
+          created_at: string
+          escalated_at: string | null
+          handled_by: string | null
+          id: string
+          phone: string | null
+          place: string
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          category: string
+          company_id: string
+          created_at?: string
+          escalated_at?: string | null
+          handled_by?: string | null
+          id?: string
+          phone?: string | null
+          place: string
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          company_id?: string
+          created_at?: string
+          escalated_at?: string | null
+          handled_by?: string | null
+          id?: string
+          phone?: string | null
+          place?: string
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_incidents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_incidents_handled_by_fkey"
+            columns: ["handled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_incidents_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_rsvps: {
+        Row: {
+          event_id: string
+          response: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          response: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          response?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_rsvps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          capacity: number | null
+          company_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          ends_at: string | null
+          id: string
+          link: string | null
+          location: string
+          starts_at: string
+          status: string
+          title: string
+        }
+        Insert: {
+          capacity?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string
+          ends_at?: string | null
+          id?: string
+          link?: string | null
+          location?: string
+          starts_at: string
+          status?: string
+          title: string
+        }
+        Update: {
+          capacity?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          ends_at?: string | null
+          id?: string
+          link?: string | null
+          location?: string
+          starts_at?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idea_comments: {
         Row: {
           author_id: string
@@ -1723,6 +1928,126 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_options: {
+        Row: {
+          id: string
+          label: string
+          poll_id: string
+          pos: number
+        }
+        Insert: {
+          id?: string
+          label: string
+          poll_id: string
+          pos: number
+        }
+        Update: {
+          id?: string
+          label?: string
+          poll_id?: string
+          pos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          option_id?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          closes_at: string
+          company_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          multi: boolean
+          question: string
+          results_mode: string
+          status: string
+        }
+        Insert: {
+          closes_at: string
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          multi?: boolean
+          question: string
+          results_mode?: string
+          status?: string
+        }
+        Update: {
+          closes_at?: string
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          multi?: boolean
+          question?: string
+          results_mode?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polls_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       positions: {
         Row: {
           company_id: string
@@ -1852,6 +2177,145 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      qa_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          author_id: string
+          body: string
+          created_at: string
+          hide_name: boolean
+          id: string
+          session_id: string
+          status: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          author_id: string
+          body: string
+          created_at?: string
+          hide_name?: boolean
+          id?: string
+          session_id: string
+          status?: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          author_id?: string
+          body?: string
+          created_at?: string
+          hide_name?: boolean
+          id?: string
+          session_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_questions_answered_by_fkey"
+            columns: ["answered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_questions_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_questions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "qa_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_sessions: {
+        Row: {
+          closes_at: string
+          company_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          closes_at: string
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          closes_at?: string
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_sessions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_sessions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_votes: {
+        Row: {
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "qa_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reactions: {
         Row: {
@@ -2650,7 +3114,60 @@ export type Database = {
         Args: { p_id: string; p_status: string }
         Returns: undefined
       }
+      emergency_add_note: {
+        Args: { p_body: string; p_id: string }
+        Returns: undefined
+      }
+      emergency_set_status: {
+        Args: { p_id: string; p_note?: string; p_status: string }
+        Returns: undefined
+      }
       end_membership: { Args: { p_membership: string }; Returns: undefined }
+      event_cancel: { Args: { p_id: string }; Returns: number }
+      event_create: {
+        Args: {
+          p_capacity: number
+          p_company: string
+          p_description: string
+          p_ends: string
+          p_link: string
+          p_location: string
+          p_starts: string
+          p_title: string
+        }
+        Returns: string
+      }
+      event_guests: {
+        Args: { p_id: string }
+        Returns: {
+          display_name: string
+          response: string
+          user_id: string
+        }[]
+      }
+      event_rsvp: {
+        Args: { p_id: string; p_response: string }
+        Returns: undefined
+      }
+      events_list: {
+        Args: { p_from?: string }
+        Returns: {
+          capacity: number
+          company_id: string
+          description: string
+          ends_at: string
+          going: number
+          id: string
+          link: string
+          location: string
+          manage: boolean
+          maybe: number
+          mine: string
+          starts_at: string
+          status: string
+          title: string
+        }[]
+      }
       grant_admin: { Args: { p_email: string }; Returns: undefined }
       grant_role: {
         Args: {
@@ -2731,12 +3248,85 @@ export type Database = {
         }
         Returns: undefined
       }
+      poll_close: { Args: { p_id: string }; Returns: undefined }
+      poll_create: {
+        Args: {
+          p_closes: string
+          p_company: string
+          p_mode: string
+          p_multi: boolean
+          p_options: string[]
+          p_question: string
+        }
+        Returns: string
+      }
+      poll_results: {
+        Args: { p_id: string }
+        Returns: {
+          label: string
+          option_id: string
+          voters: number
+          votes: number
+        }[]
+      }
+      poll_vote: {
+        Args: { p_id: string; p_options: string[] }
+        Returns: undefined
+      }
       prune_old_data: { Args: never; Returns: Json }
       publish_announcement: { Args: { p_id: string }; Returns: number }
+      qa_answer: {
+        Args: { p_answer: string; p_question: string }
+        Returns: undefined
+      }
+      qa_ask: {
+        Args: { p_body: string; p_hide?: boolean; p_session: string }
+        Returns: string
+      }
+      qa_close_session: { Args: { p_id: string }; Returns: undefined }
+      qa_create_session: {
+        Args: {
+          p_closes: string
+          p_company: string
+          p_description: string
+          p_title: string
+        }
+        Returns: string
+      }
+      qa_hide: {
+        Args: { p_on: boolean; p_question: string }
+        Returns: undefined
+      }
+      qa_list: {
+        Args: { p_session: string }
+        Returns: {
+          answer: string
+          answered_at: string
+          asker: string
+          body: string
+          created_at: string
+          id: string
+          mine: boolean
+          status: string
+          voted: boolean
+          votes: number
+        }[]
+      }
+      qa_vote: { Args: { p_question: string }; Returns: boolean }
       redeem_invitation: { Args: { p_code: string }; Returns: string }
       report_assign: {
         Args: { p_id: string; p_owner: string }
         Returns: undefined
+      }
+      report_emergency: {
+        Args: {
+          p_body: string
+          p_category: string
+          p_company: string
+          p_phone?: string
+          p_place: string
+        }
+        Returns: string
       }
       report_merge: {
         Args: { p_dup: string; p_into: string }
@@ -2765,6 +3355,7 @@ export type Database = {
       }
       revoke_admin: { Args: { p_user: string }; Returns: undefined }
       revoke_role: { Args: { p_id: string }; Returns: undefined }
+      run_emergency_escalation: { Args: never; Returns: number }
       run_flush: { Args: never; Returns: undefined }
       run_tick: { Args: never; Returns: Json }
       set_category_active: {
