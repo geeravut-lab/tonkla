@@ -107,3 +107,28 @@ describe("task registry", () => {
     }
   });
 });
+
+import { AiError as AiErr, callAnthropic as callA } from "@/server/ai/core";
+describe("provider errors explain themselves and use the fallback when another provider could help", () => {
+  const resp = (status: number, body: unknown) => (async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
+  const code = async (status: number, body: unknown) => {
+    try {
+      await callA("k", "m", { system: "s", user: "u" }, resp(status, body));
+      return null;
+    } catch (e) {
+      return e as InstanceType<typeof AiErr>;
+    }
+  };
+  it("out of credit is its own code, retryable, and keeps the provider's reason", async () => {
+    const e = await code(400, { error: { type: "invalid_request_error", message: "Your credit balance is too low to access the API" } });
+    expect(e?.code).toBe("billing");
+    expect(e?.retryable).toBe(true);
+    expect(e?.message).toContain("credit balance");
+  });
+  it("an unknown model (404) can use the other provider; a genuinely bad request cannot", async () => {
+    expect((await code(404, { error: { message: "model: x" } }))?.retryable).toBe(true);
+    const bad = await code(400, { error: { message: "max_tokens: must be positive" } });
+    expect(bad?.code).toBe("bad_request");
+    expect(bad?.retryable).toBe(false);
+  });
+});

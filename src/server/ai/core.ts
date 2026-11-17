@@ -6,12 +6,12 @@ type Fetch = typeof fetch;
 export type AiRequest = { system: string; user: string; maxTokens?: number; json?: boolean };
 export type AiResult = { text: string; inputTokens: number | null; outputTokens: number | null };
 export class AiError extends Error {
-  constructor(public code: "no_key" | "auth" | "rate_limit" | "free_tier" | "server" | "network" | "bad_output" | "bad_request" | "unsupported", message: string = code) {
+  constructor(public code: "no_key" | "auth" | "rate_limit" | "free_tier" | "billing" | "not_found" | "server" | "network" | "bad_output" | "bad_request" | "unsupported", message: string = code) {
     super(message);
   }
   /** Worth one fallback attempt: the other provider may succeed where this one could not. */
   get retryable() {
-    return ["auth", "rate_limit", "free_tier", "server", "network"].includes(this.code);
+    return ["auth", "rate_limit", "free_tier", "billing", "not_found", "server", "network"].includes(this.code);
   }
 }
 
@@ -22,7 +22,21 @@ function classify(status: number, body: string): AiError {
   if (status === 401 || status === 403) return new AiError("auth", `http ${status}`);
   if (status === 429) return new AiError(/free_tier|free tier/i.test(body) ? "free_tier" : "rate_limit", "http 429");
   if (status >= 500) return new AiError("server", `http ${status}`);
-  return new AiError("bad_request", `http ${status}`);
+  const why = providerMessage(body);
+  if (status === 404) return new AiError("not_found", `http 404 ${why}`); // an unknown model name at this provider: the other provider may still answer
+  if (/credit balance|billing|insufficient|quota/i.test(why)) return new AiError("billing", `http ${status} ${why}`); // out of credit: also worth the fallback
+  return new AiError("bad_request", `http ${status} ${why}`);
+}
+
+/** The provider's own explanation, trimmed, so an administrator can tell "no credit" from "bad request". It never contains our data. */
+function providerMessage(body: string): string {
+  try {
+    const j = JSON.parse(body) as { error?: { message?: string } | string; message?: string };
+    const m = typeof j.error === "string" ? j.error : (j.error?.message ?? j.message ?? "");
+    return String(m).replace(/\s+/g, " ").slice(0, 160);
+  } catch {
+    return body.replace(/\s+/g, " ").slice(0, 120);
+  }
 }
 
 export async function callAnthropic(key: string, model: string, req: AiRequest, f: Fetch = fetch): Promise<AiResult> {
