@@ -4,11 +4,12 @@ import { getDict } from "@/i18n/server";
 import { requireAdmin } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { featureEnabled } from "@/server/features";
-import { providerStatus, resolveRoute } from "@/server/ai/gateway";
+import { modelsFor, providerStatus, resolveRoute } from "@/server/ai/gateway";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { PendingLink } from "@/components/ui/PendingLink";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { resetAiRoute, saveAiKey, saveAiRoute } from "@/app/actions/ai";
+import { RouteFields } from "./RouteFields";
 import { ModelTester } from "./ModelTester";
 
 export async function generateMetadata() {
@@ -31,6 +32,8 @@ export default async function AiAdminPage() {
   const saved = new Map((rows.data ?? []).map((r) => [r.task, r]));
   const used = new Map((daily.data ?? []).map((d) => [d.task, d]));
   const live = new Map(routes);
+  // what each provider really offers, so a model is picked from a list instead of typed (a provider without a key has no list)
+  const modelLists: Record<string, string[]> = Object.fromEntries(await Promise.all(PROVIDER_KEYS.map(async (p) => [p, status[p] === "none" ? [] : await modelsFor(p).catch(() => [])] as const)));
   const pname = (p: string | null) => (p && p in PROVIDERS ? PROVIDERS[p as keyof typeof PROVIDERS].label : t.ai_none);
   const statusText = (p: keyof typeof status) => (status[p] === "env" ? t.ai_key_env : status[p] === "saved" ? t.ai_key_saved : t.ai_key_none);
   const when = (iso: string) => new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" });
@@ -97,28 +100,13 @@ export default async function AiAdminPage() {
                     <input type="checkbox" name="enabled" defaultChecked={row?.enabled ?? true} className="size-6 accent-primary" />
                     {t.ai_enabled}
                   </label>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <fieldset className="flex flex-col gap-2">
-                      <legend className="font-medium">{t.ai_primary}</legend>
-                      <select name="provider" defaultValue={row?.provider ?? ""} aria-label={`${t.ai_primary} ${t.ai_provider}`} className={field}>
-                        <option value="">{t.ai_default}</option>
-                        {PROVIDER_KEYS.map((p) => (
-                          <option key={p} value={p}>{PROVIDERS[p].label}</option>
-                        ))}
-                      </select>
-                      <input name="model" defaultValue={row?.model ?? ""} maxLength={80} placeholder={def.route.model} aria-label={`${t.ai_primary} ${t.ai_model}`} className={field} />
-                    </fieldset>
-                    <fieldset className="flex flex-col gap-2">
-                      <legend className="font-medium">{t.ai_fallback}</legend>
-                      <select name="fb_provider" defaultValue={row?.fallback_provider ?? ""} aria-label={`${t.ai_fallback} ${t.ai_provider}`} className={field}>
-                        <option value="">{t.ai_none}</option>
-                        {PROVIDER_KEYS.map((p) => (
-                          <option key={p} value={p}>{PROVIDERS[p].label}</option>
-                        ))}
-                      </select>
-                      <input name="fb_model" defaultValue={row?.fallback_model ?? ""} maxLength={80} aria-label={`${t.ai_fallback} ${t.ai_model}`} className={field} />
-                    </fieldset>
-                  </div>
+                  <RouteFields
+                    providers={PROVIDER_KEYS.map((p) => ({ key: p, label: PROVIDERS[p].label }))}
+                    models={modelLists}
+                    initial={{ provider: row?.provider ?? "", model: row?.model ?? "", fbProvider: row?.fallback_provider ?? "", fbModel: row?.fallback_model ?? "" }}
+                    defaultModel={`${PROVIDERS[def.route.provider].label} · ${def.route.model}`}
+                    texts={{ primary: t.ai_primary, fallback: t.ai_fallback, provider: t.ai_provider, model: t.ai_model, useDefault: t.ai_default, none: t.ai_none, noList: t.ai_model_no_list, notListed: t.ai_model_not_listed, pickModel: t.ai_model_pick }}
+                  />
                   <PendingButton pendingLabel={t.ai_route_saving} className="self-start">
                     {t.ai_route_save}
                   </PendingButton>

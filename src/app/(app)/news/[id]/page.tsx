@@ -29,7 +29,8 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const aiOn = await featureEnabled("ai_assistant", s.memberships[0]?.companyId);
   await assertFeatureForPage("announcements", s.memberships[0]?.companyId);
   const sb = await createClient();
-  const { data: a } = await sb.from("announcements").select("id, kind, title, body, requires_ack, ack_due_at, status, author_id, company_id, publish_at, pinned, profiles(display_name)").eq("id", id).maybeSingle();
+  const { data: a, error: aErr } = await sb.from("announcements").select("id, kind, title, body, requires_ack, ack_due_at, status, author_id, company_id, publish_at, pinned, profiles!announcements_author_id_fkey(display_name)").eq("id", id).maybeSingle();
+  if (aErr) throw new Error(`announcement query failed: ${aErr.message}`);
   if (!a) notFound(); // not a recipient / not visible = indistinguishable from "does not exist"
   const [receipt, comments, reactions] = await Promise.all([
     sb.from("announcement_receipts").select("read_at, acked_at").eq("announcement_id", id).eq("user_id", s.userId).maybeSingle(),

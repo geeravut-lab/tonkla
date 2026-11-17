@@ -1,4 +1,7 @@
 export const th = {
+  ai_model_pick: "เลือกรุ่น…",
+  ai_model_not_listed: "ไม่อยู่ในรายชื่อของผู้ให้บริการ",
+  ai_model_no_list: "โหลดรายชื่อรุ่นจากผู้ให้บริการไม่ได้ ให้พิมพ์ชื่อรุ่นเอง",
   err_ai_disabled: "งาน AI นี้ถูกปิดไว้",
   err_ai_no_key: "ยังไม่ได้ตั้งค่าคีย์ของผู้ให้บริการ AI",
   err_ai_failed: "ผู้ให้บริการ AI ตอบไม่ได้ในขณะนี้",
@@ -90,6 +93,9 @@ export const th = {
 } as const;
 
 export const en = {
+  ai_model_pick: "Choose a model…",
+  ai_model_not_listed: "not in the provider's list",
+  ai_model_no_list: "Could not load the provider's model list: type the model name.",
   err_ai_disabled: "This AI task is switched off",
   err_ai_no_key: "No API key is set for the AI provider yet",
   err_ai_failed: "The AI provider cannot answer right now",

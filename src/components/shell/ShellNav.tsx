@@ -11,7 +11,19 @@ import { LocaleSwitch } from "./LocaleSwitch";
 import { SignOut } from "./SignOut";
 import type { NavItem } from "@/config/nav";
 
-type Props = { items?: readonly NavItem[]; badges?: Record<string, number> };
+type Props = { items?: readonly NavItem[]; badges?: Record<string, number>; account?: string };
+
+/** Who is signed in: the e-mail, or the name for Aivora (LINE) accounts. Always visible, on phone and desktop. */
+function Account({ label }: { label?: string }) {
+  const t = useT();
+  if (!label) return null;
+  return (
+    <p className="flex min-w-0 items-center gap-2 px-1 text-sm text-muted" title={label} aria-label={`${t.account_signed_in}: ${label}`} data-testid="account-label">
+      <Icon name="user" size={18} />
+      <span className="truncate">{label}</span>
+    </p>
+  );
+}
 
 function Badge({ n }: { n: number }) {
   if (!n) return null;
@@ -23,7 +35,7 @@ function Badge({ n }: { n: number }) {
 }
 
 /** Desktop sidebar (md and up). Only the middle list scrolls; header and footer stay visible. */
-export function Sidebar({ items = NAV, badges = {} }: Props) {
+export function Sidebar({ items = NAV, badges = {}, account }: Props) {
   const pathname = usePathname();
   const t = useT();
   return (
@@ -56,6 +68,7 @@ export function Sidebar({ items = NAV, badges = {} }: Props) {
         </ul>
       </nav>
       <div className="flex flex-col gap-2 border-t border-line p-3">
+        <Account label={account} />
         <LocaleSwitch />
         <SignOut />
       </div>
@@ -64,7 +77,7 @@ export function Sidebar({ items = NAV, badges = {} }: Props) {
 }
 
 /** Phone bottom bar: 4 main items + a "More" button that opens a bottom sheet. */
-export function BottomBar({ items = NAV, badges = {} }: Props) {
+export function BottomBar({ items = NAV, badges = {}, account }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useT();
@@ -227,6 +240,7 @@ export function BottomBar({ items = NAV, badges = {} }: Props) {
               ) : null}
             </div>
             <div className="flex flex-col gap-2 border-t border-line p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+              <Account label={account} />
               <LocaleSwitch />
               <SignOut />
             </div>
