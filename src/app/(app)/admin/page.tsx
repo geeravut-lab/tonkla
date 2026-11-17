@@ -10,6 +10,7 @@ const ITEMS: { href: string; label: DictKey; icon: IconName }[] = [
   { href: "/admin/brand", label: "admin_brand", icon: "megaphone" },
   { href: "/admin/admins", label: "admin_admins", icon: "user" },
   { href: "/admin/companies", label: "admin_companies", icon: "building" },
+  { href: "/admin/messaging", label: "mg_title", icon: "bell" },
   { href: "/admin/automation", label: "auto_title", icon: "clock" },
   { href: "/admin/analytics", label: "admin_analytics", icon: "chart" },
 ];

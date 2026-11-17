@@ -373,6 +373,47 @@ export type Database = {
           },
         ]
       }
+      company_channels: {
+        Row: {
+          company_id: string
+          created_at: string
+          enabled: boolean
+          events: string[]
+          id: string
+          kind: string
+          last_error: string | null
+          webhook_url: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          kind: string
+          last_error?: string | null
+          webhook_url: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          kind?: string
+          last_error?: string | null
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_channels_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_features: {
         Row: {
           company_id: string
@@ -395,6 +436,53 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_queue: {
+        Row: {
+          attempts: number
+          channel_id: string
+          created_at: string
+          event: string
+          href: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          status: string
+          title: string
+        }
+        Insert: {
+          attempts?: number
+          channel_id: string
+          created_at?: string
+          event: string
+          href: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          attempts?: number
+          channel_id?: string
+          created_at?: string
+          event?: string
+          href?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_queue_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "company_channels"
             referencedColumns: ["id"]
           },
         ]
@@ -995,6 +1083,24 @@ export type Database = {
           },
         ]
       }
+      line_link_attempts: {
+        Row: {
+          at: string
+          id: number
+          line_user_id: string
+        }
+        Insert: {
+          at?: string
+          id?: never
+          line_user_id: string
+        }
+        Update: {
+          at?: string
+          id?: never
+          line_user_id?: string
+        }
+        Relationships: []
+      }
       memberships: {
         Row: {
           company_id: string
@@ -1076,6 +1182,163 @@ export type Database = {
           },
           {
             foreignKeyName: "memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_log: {
+        Row: {
+          at: string
+          channel: string
+          error: string | null
+          id: number
+          kind: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          at?: string
+          channel: string
+          error?: string | null
+          id?: never
+          kind?: string | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          at?: string
+          channel?: string
+          error?: string | null
+          id?: never
+          kind?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      notification_channels: {
+        Row: {
+          address: string | null
+          channel: string
+          code_expires_at: string | null
+          code_hash: string | null
+          created_at: string
+          id: string
+          last_error: string | null
+          status: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          channel: string
+          code_expires_at?: string | null
+          code_hash?: string | null
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          status?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          channel?: string
+          code_expires_at?: string | null
+          code_hash?: string | null
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          status?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_channels_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_prefs: {
+        Row: {
+          grp: string
+          line: boolean
+          user_id: string
+        }
+        Insert: {
+          grp: string
+          line?: boolean
+          user_id: string
+        }
+        Update: {
+          grp?: string
+          line?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_prefs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_queue: {
+        Row: {
+          attempts: number
+          channel: string
+          created_at: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          notification_id: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          channel?: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          notification_id: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          channel?: string
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          notification_id?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_queue_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1920,6 +2183,7 @@ export type Database = {
         }[]
       }
       archive_announcement: { Args: { p_id: string }; Returns: undefined }
+      can_coordinate: { Args: { p_company: string }; Returns: boolean }
       claim_roster: { Args: never; Returns: number }
       create_invitation: {
         Args: { p_company: string; p_ttl_hours?: number }
@@ -1988,6 +2252,26 @@ export type Database = {
       }
       mark_announcement_read: { Args: { p_id: string }; Returns: undefined }
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
+      my_channels: {
+        Args: never
+        Returns: {
+          channel: string
+          code_expires_at: string
+          last_error: string
+          status: string
+          verified_at: string
+        }[]
+      }
+      notify_system: {
+        Args: {
+          p_dedupe: string
+          p_href: string
+          p_kind: string
+          p_title: string
+          p_user: string
+        }
+        Returns: undefined
+      }
       publish_announcement: { Args: { p_id: string }; Returns: number }
       redeem_invitation: { Args: { p_code: string }; Returns: string }
       report_assign: {
@@ -2017,6 +2301,7 @@ export type Database = {
       }
       revoke_admin: { Args: { p_user: string }; Returns: undefined }
       revoke_role: { Args: { p_id: string }; Returns: undefined }
+      run_flush: { Args: never; Returns: undefined }
       run_tick: { Args: never; Returns: Json }
       set_category_active: {
         Args: { p_active: boolean; p_category: string }
@@ -2083,6 +2368,7 @@ export type Database = {
         }
         Returns: string
       }
+      unlink_channel: { Args: { p_channel: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

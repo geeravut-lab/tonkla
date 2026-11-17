@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { isFixtureMode } from "@/lib/env";
 import { hasAivoraLink } from "@/server/account-links";
 import { PendingButton } from "@/components/ui/PendingButton";
+import { PendingLink } from "@/components/ui/PendingLink";
+import { Icon } from "@/components/ui/Icon";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { saveProfile } from "@/app/actions/account";
 import { IdentityLinks } from "./IdentityLinks";
@@ -44,6 +46,10 @@ export default async function AccountPage() {
           </PendingButton>
         </StatefulForm>
       </div>
+
+      <PendingLink href="/account/notifications" icon={<Icon name="bell" />} className="tk-card flex min-h-16 items-center gap-3 p-4 font-semibold text-primary-hover">
+        {t.ln_title}
+      </PendingLink>
 
       <div className="tk-card p-5">
         <h2 className="mb-2 text-lg font-semibold">{t.account_companies}</h2>

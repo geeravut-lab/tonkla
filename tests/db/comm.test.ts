@@ -144,6 +144,12 @@ describe("notifications", () => {
     expect(n).toBeGreaterThan(0);
     expect(await h.as(U.alice, async (q) => (await q("select * from public.notifications where read_at is null")).rows.length)).toBe(0);
   });
+  it("protocol-relative and external links are refused", async () => {
+    for (const bad of ["//evil.example", "https://evil.example", "javascript:x"]) {
+      await h.admin((q) => q("select app.notify($1,'x_y','t','',$2,$3)", [U.alice, bad, `bad-${bad}`]));
+      expect(await h.as(U.alice, async (q) => (await q("select * from public.notifications where dedupe_key = $1", [`bad-${bad}`])).rows.length)).toBe(0);
+    }
+  });
   it("internal links only", async () => {
     await expect(h.db.query("select app.notify($1,'x_y','t','','https://evil.example','bad1')", [U.alice])).resolves.toBeTruthy(); // notify swallows errors...
     expect(await h.as(U.alice, async (q) => (await q("select * from public.notifications where dedupe_key = 'bad1'")).rows.length)).toBe(0); // ...and nothing is stored

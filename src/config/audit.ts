@@ -2,7 +2,7 @@
 export const AUDIT_KINDS: Record<string, readonly string[]> = {
   auth: ["auth.login", "auth.logout", "auth.link_identity", "auth.password_change"],
   admin: ["admin.grant", "admin.revoke"],
-  settings: ["settings.feature_flag", "settings.brand", "settings.audit", "settings.company_feature", "settings.automation"],
+  settings: ["settings.feature_flag", "settings.brand", "settings.audit", "settings.company_feature", "settings.automation", "settings.messaging", "settings.company_channel"],
   company: ["company.create", "company.update"],
   member: ["member.join_request", "member.join_decide", "member.roster_import", "member.invite_create", "member.invite_redeem", "member.role_grant", "member.role_revoke", "member.end", "member.supervisor"],
   consent: ["consent.privacy"],

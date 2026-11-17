@@ -8,6 +8,9 @@ import { StatefulForm } from "@/components/ui/StatefulForm";
 import { createInvite, decideJoin, endMember, importRoster, setRole } from "@/app/actions/desk";
 import { saveRouting } from "@/app/actions/reports";
 import { saveCriterion } from "@/app/actions/ideas";
+import { deleteCompanyChannel, saveCompanyChannel, testCompanyChannel } from "@/app/actions/messaging";
+import { listCompanyChannels } from "@/server/channels";
+import { fmt } from "@/i18n";
 
 export async function generateMetadata() {
   return { title: (await getDict()).desk_title };
@@ -25,6 +28,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   let supervisors = new Map<string, string>();
   let categories: { id: string; name_th: string }[] = [];
   let criteria: { id: string; name_th: string; weight: number; active: boolean }[] = [];
+  let channels: Awaited<ReturnType<typeof listCompanyChannels>> = [];
   let routing = new Map<string, { owner_user_id: string; sla_hours: number | null }>();
   if (!isFixtureMode()) {
     const sb = await createClient();
@@ -37,6 +41,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
       sb.from("idea_criteria").select("id, name_th, weight, active").eq("company_id", company.id).order("weight", { ascending: false }),
     ]);
     criteria = crit.data ?? [];
+    channels = await listCompanyChannels(company.id);
     categories = cats.data ?? [];
     routing = new Map((rr.data ?? []).map((x) => [x.category_id, x]));
     requests = (r.data ?? []) as unknown as Req[];
@@ -148,6 +153,64 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
           </ul>
         </div>
       ) : null}
+
+      <div className="tk-card p-5">
+        <h2 className="mb-1 text-lg font-semibold">{t.ch_title}</h2>
+        <p className="mb-3 text-sm text-muted">{t.ch_help}</p>
+        <div className="flex flex-col gap-5">
+          {(["teams_webhook", "gchat_webhook"] as const).map((kind) => {
+            const cur = channels.find((c) => c.kind === kind);
+            return (
+              <div key={kind} className="flex flex-col gap-3 border-b border-line pb-5 last:border-0 last:pb-0">
+                <StatefulForm action={saveCompanyChannel} successText={t.admin_saved} className="flex flex-col gap-3">
+                  <input type="hidden" name="company" value={company.id} />
+                  <input type="hidden" name="kind" value={kind} />
+                  <h3 className="font-semibold">{(t as Record<string, string>)[`ch_kind_${kind}`]}</h3>
+                  <label className="flex flex-col gap-1 text-sm font-medium">
+                    {t.ch_url}
+                    <input name="url" type="url" autoComplete="off" maxLength={1000} placeholder={cur ? t.ch_url_keep : "https://"} className="min-h-12 rounded-control border-2 border-field-border bg-surface px-3 text-base" />
+                  </label>
+                  <fieldset className="flex flex-wrap gap-3">
+                    <legend className="text-sm font-medium">{t.ch_events}</legend>
+                    {(["announcement", "report_overdue"] as const).map((e) => (
+                      <label key={e} className="flex min-h-11 items-center gap-2 rounded-full bg-mint px-3 text-sm">
+                        <input type="checkbox" name="events" value={e} defaultChecked={cur ? cur.events.includes(e) : true} className="size-5 accent-primary" />
+                        {(t as Record<string, string>)[`wh_${e}`]}
+                      </label>
+                    ))}
+                  </fieldset>
+                  <label className="flex min-h-11 items-center gap-2">
+                    <input type="checkbox" name="enabled" defaultChecked={cur?.enabled ?? true} className="size-6 accent-primary" />
+                    {t.ch_enabled}
+                  </label>
+                  {cur?.last_error ? <p className="text-sm font-medium text-danger-fg">⚠ {fmt(t.ch_last_error, { error: cur.last_error })}</p> : null}
+                  <PendingButton pendingLabel={t.ch_saving} className="self-start">
+                    {t.ch_save}
+                  </PendingButton>
+                </StatefulForm>
+                {cur ? (
+                  <div className="flex flex-wrap gap-2">
+                    <StatefulForm action={testCompanyChannel} successText={t.ch_test_ok}>
+                      <input type="hidden" name="company" value={company.id} />
+                      <input type="hidden" name="kind" value={kind} />
+                      <PendingButton variant="secondary" pendingLabel={t.ch_testing} className="!min-h-11">
+                        {t.ch_test}
+                      </PendingButton>
+                    </StatefulForm>
+                    <StatefulForm action={deleteCompanyChannel}>
+                      <input type="hidden" name="company" value={company.id} />
+                      <input type="hidden" name="kind" value={kind} />
+                      <PendingButton variant="secondary" pendingLabel={t.ch_deleting} className="!min-h-11">
+                        {t.ch_delete}
+                      </PendingButton>
+                    </StatefulForm>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="tk-card p-5">
         <h2 className="mb-1 text-lg font-semibold">{t.desk_criteria}</h2>
