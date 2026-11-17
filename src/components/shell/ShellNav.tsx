@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { PendingLink } from "@/components/ui/PendingLink";
 import { navStore } from "@/components/ui/nav-store";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { InstallApp } from "@/components/pwa/InstallApp";
 import { LocaleSwitch } from "./LocaleSwitch";
 import { SignOut } from "./SignOut";
 import type { NavItem } from "@/config/nav";
@@ -68,6 +69,7 @@ export function Sidebar({ items = NAV, badges = {}, account }: Props) {
         </ul>
       </nav>
       <div className="flex flex-col gap-2 border-t border-line p-3">
+        <InstallApp variant="nav" />
         <Account label={account} />
         <LocaleSwitch />
         <SignOut />
@@ -202,7 +204,7 @@ export function BottomBar({ items = NAV, badges = {}, account }: Props) {
               </button>
             </div>
             <div className="relative min-h-0 flex-1">
-              <div ref={scroller} onScroll={measure} className="max-h-[calc(85dvh-13rem)] overflow-y-auto overscroll-contain px-3 pb-2">
+              <div ref={scroller} onScroll={measure} className="max-h-[calc(85dvh-16rem)] overflow-y-auto overscroll-contain px-3 pb-2">
                 <ul className="flex flex-col gap-1">
                   {more.map((it) => {
                     const active = isActive(pathname, it.href);
@@ -240,6 +242,7 @@ export function BottomBar({ items = NAV, badges = {}, account }: Props) {
               ) : null}
             </div>
             <div className="flex flex-col gap-2 border-t border-line p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+              <InstallApp variant="nav" />
               <Account label={account} />
               <LocaleSwitch />
               <SignOut />

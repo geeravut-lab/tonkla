@@ -9,6 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { saveProfile } from "@/app/actions/account";
 import { IdentityLinks } from "./IdentityLinks";
+import { InstallApp } from "@/components/pwa/InstallApp";
 
 export async function generateMetadata() {
   return { title: (await getDict()).account_title };
@@ -46,6 +47,8 @@ export default async function AccountPage() {
           </PendingButton>
         </StatefulForm>
       </div>
+
+      <InstallApp variant="card" />
 
       <PendingLink href="/account/notifications" icon={<Icon name="bell" />} className="tk-card flex min-h-16 items-center gap-3 p-4 font-semibold text-primary-hover">
         {t.ln_title}

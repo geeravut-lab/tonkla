@@ -11,8 +11,18 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   return {
     name: `${t.app_name} · ${t.app_name_th}`,
     short_name: t.app_name,
+    description: t.app_tagline,
+    id: "/",
     start_url: "/",
+    scope: "/",
     display: "standalone",
+    orientation: "portrait-primary",
+    categories: ["business", "productivity"],
+    // long-press the app icon: straight to the two most common jobs
+    shortcuts: [
+      { name: t.rep_new, url: "/reports/new", icons: [{ src: u.icon("icon-192"), sizes: "192x192", type: "image/png" }] },
+      { name: t.idea_new, url: "/ideas/new", icons: [{ src: u.icon("icon-192"), sizes: "192x192", type: "image/png" }] },
+    ],
     background_color: BACKGROUND_COLOR,
     theme_color: THEME_COLOR,
     icons: [
