@@ -102,7 +102,7 @@ export async function testModel(provider: Provider, model: string): Promise<{ ok
     await callProvider(provider, key, model, { system: "Reply with the single word: OK", user: "ping", maxTokens: 128 });
     return { ok: true, ms: Date.now() - t0 };
   } catch (e) {
-    return { ok: false, ms: Date.now() - t0, error: e instanceof AiError ? e.code : "server" };
+    return { ok: false, ms: Date.now() - t0, error: e instanceof AiError ? `${e.code}${e.message && e.message !== e.code ? ` (${e.message})` : ""}` : "server" };
   }
 }
 
