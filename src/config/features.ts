@@ -24,9 +24,18 @@ export const FEATURES = {
   recognition: { defaultEnabled: false, label: "feat_recognition" },
   knowledge_base: { defaultEnabled: false, label: "feat_kb" },
   group_dashboard: { defaultEnabled: false, label: "feat_group_dash" },
+  // phase 3
+  teams: { defaultEnabled: false, label: "feat_teams" },
+  idea_adoption: { defaultEnabled: false, label: "feat_adoption" },
+  pilot_budget: { defaultEnabled: false, label: "feat_budget" },
+  communities: { defaultEnabled: false, label: "feat_communities" },
+  annual_awards: { defaultEnabled: false, label: "feat_annual" },
 } as const satisfies Record<string, { defaultEnabled: boolean; label: DictKey }>;
 
 export type FeatureKey = keyof typeof FEATURES;
 export const FEATURE_KEYS = Object.keys(FEATURES) as FeatureKey[];
 
 export const PHASE2_FEATURES = ["anonymous_channel", "emergency", "qa", "events", "polls", "challenges", "idea_library", "recognition", "knowledge_base", "group_dashboard"] as const;
+export const PHASE3_FEATURES = ["teams", "idea_adoption", "pilot_budget", "communities", "annual_awards", "ai_assistant"] as const;
+/** Everything a rollout wave may switch on. */
+export const ROLLOUT_FEATURES = [...PHASE2_FEATURES, ...PHASE3_FEATURES] as const;

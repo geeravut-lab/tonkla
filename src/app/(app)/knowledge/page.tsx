@@ -60,6 +60,9 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
       <nav aria-label={t.kb_title} className="flex flex-wrap gap-2">
         {tabLink("docs", t.kb_tab_docs)}
         {tabLink("practices", t.kb_tab_practices)}
+        <PendingLink href="/knowledge/ask" className="inline-flex min-h-11 items-center rounded-full bg-sun px-4 font-medium text-ink">
+          {t.aif_kb_link}
+        </PendingLink>
       </nav>
       {tab === "docs" ? (
         <>

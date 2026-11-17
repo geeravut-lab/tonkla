@@ -15,11 +15,14 @@ import * as comm2 from "@/i18n/dict/comm2";
 import * as recog from "@/i18n/dict/recog";
 import * as kb from "@/i18n/dict/kb";
 import * as gdash from "@/i18n/dict/gdash";
+import * as email from "@/i18n/dict/email";
+import * as p3 from "@/i18n/dict/p3";
+import * as aif from "@/i18n/dict/aif";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog, kb, gdash };
+const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog, kb, gdash, email, p3, aif };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {

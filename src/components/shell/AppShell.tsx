@@ -23,7 +23,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   if (session.isCentral) held.add("central");
   if (session.isAnonHandler) held.add("handler");
   const features = new Set<string>();
-  for (const f of ["anonymous_channel", "emergency", "qa", "events", "polls", "challenges", "idea_library", "recognition", "knowledge_base", "group_dashboard"] as const) if (await featureEnabled(f, session.memberships[0]?.companyId)) features.add(f);
+  for (const f of ["anonymous_channel", "emergency", "qa", "events", "polls", "challenges", "idea_library", "recognition", "knowledge_base", "group_dashboard", "teams", "pilot_budget", "communities", "annual_awards"] as const) if (await featureEnabled(f, session.memberships[0]?.companyId)) features.add(f);
   const items = navFor(held, features);
   let unread = 0;
   if (!isFixtureMode()) {

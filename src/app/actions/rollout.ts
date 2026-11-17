@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/server/audit";
 import { guarded, str } from "@/server/action";
 import { clearSettingsCache } from "@/server/settings";
-import { PHASE2_FEATURES } from "@/config/features";
+import { ROLLOUT_FEATURES } from "@/config/features";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const uuid = (v: string) => {
@@ -21,7 +21,7 @@ export async function createWave(_p: ActionState, fd: FormData): Promise<ActionS
     if (!name) throw new AppError("err_invalid_input");
     const bu = str(fd, "bu", 40);
     const date = str(fd, "date", 10);
-    const features = fd.getAll("features").map(String).filter((f) => (PHASE2_FEATURES as readonly string[]).includes(f));
+    const features = fd.getAll("features").map(String).filter((f) => (ROLLOUT_FEATURES as readonly string[]).includes(f));
     const sb = await createClient();
     const { data, error } = await sb.rpc("admin_create_wave", { p_name: name, p_bu: (bu ? uuid(bu) : null) as unknown as string, p_planned: (/^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null) as unknown as string, p_features: features });
     if (error) throw error;

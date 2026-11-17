@@ -4,7 +4,9 @@ import { getDict } from "@/i18n/server";
 import { NEXT, NEEDS_NOTE, OPEN, type ReportStatus } from "@/lib/reports";
 import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { featureEnabled } from "@/server/features";
 import { assertFeatureForPage } from "@/server/page-guards";
+import { AiOwnerSuggest } from "@/components/ai/AiPanels";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { Deadline } from "@/components/reports/Deadline";
@@ -45,6 +47,7 @@ export default async function ReportPage({ params, searchParams }: { params: Pro
   const isOwner = r.owner_id === s.userId;
   const isCoord = s.coordinatedCompanies.some((c) => c.id === r.company_id);
   const canManage = isOwner || isCoord;
+  const aiOn = isCoord && (await featureEnabled("ai_assistant", r.company_id));
   const isSubmitter = r.submitter_id === s.userId;
   const sawSubmitter = isSubmitter || canManage || s.isSupervisor || s.isCentral;
   const joined = (metooRows.data ?? []).some((m) => m.user_id === s.userId);
@@ -228,6 +231,7 @@ export default async function ReportPage({ params, searchParams }: { params: Pro
                   {t.rep_assign_btn}
                 </PendingButton>
               </StatefulForm>
+              {aiOn ? <AiOwnerSuggest reportId={id} /> : null}
               {others.length > 0 ? (
                 <StatefulForm action={mergeReport} className="flex flex-col gap-3 border-t border-line pt-4">
                   <input type="hidden" name="id" value={id} />

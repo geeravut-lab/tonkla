@@ -11,6 +11,8 @@ const PARENTS: readonly { pattern: RegExp; parent: string; label: DictKey }[] = 
   { pattern: /^\/polls\/[^/]+$/, parent: "/polls", label: "nav_polls" },
   { pattern: /^\/challenges\/[^/]+$/, parent: "/challenges", label: "nav_challenges" },
   { pattern: /^\/knowledge\/[^/]+$/, parent: "/knowledge", label: "nav_knowledge" },
+  { pattern: /^\/teams\/[^/]+$/, parent: "/teams", label: "nav_teams" },
+  { pattern: /^\/communities\/[^/]+$/, parent: "/communities", label: "nav_communities" },
   { pattern: /^\/account\/[^/]+$/, parent: "/account", label: "nav_account" },
   { pattern: /^\/admin\/[^/]+$/, parent: "/admin", label: "nav_admin" },
 ];

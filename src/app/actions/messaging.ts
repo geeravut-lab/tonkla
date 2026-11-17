@@ -7,6 +7,8 @@ import { audit } from "@/server/audit";
 import { guarded, str } from "@/server/action";
 import { assertFeature } from "@/server/features";
 import { flushCompany, sendTestLine, startLineLink, webhookPayload } from "@/server/messaging";
+import { getEmailSettings, sendTestEmail } from "@/server/email";
+import { validAddress } from "@/server/email-core";
 import { setSetting, getSetting, clearSettingsCache } from "@/server/settings";
 import { companyChannelUrl, deleteCompanyChannelRow, upsertCompanyChannel } from "@/server/channels";
 import { safeAppUrl } from "@/server/line-core";
@@ -47,7 +49,9 @@ export async function savePref(_p: ActionState, fd: FormData): Promise<ActionSta
     const grp = str(fd, "grp", 20);
     if (!["work", "news", "reminders"].includes(grp)) throw new AppError("err_invalid_input");
     const sb = await createClient();
-    const { error } = await sb.from("notification_prefs").upsert({ user_id: s.userId, grp, line: fd.get("line") === "on" }, { onConflict: "user_id,grp" });
+    const row: { user_id: string; grp: string; email: boolean; line?: boolean } = { user_id: s.userId, grp, email: fd.get("email") === "on" };
+    if (fd.get("hasLine") === "1") row.line = fd.get("line") === "on"; // the LINE box exists only for people who linked LINE: never overwrite it otherwise
+    const { error } = await sb.from("notification_prefs").upsert(row, { onConflict: "user_id,grp" });
     if (error) throw error;
     revalidatePath("/account/notifications");
   });
@@ -161,3 +165,32 @@ export async function flushNow(): Promise<ActionState> {
 }
 
 
+
+// ------------------------------------------------------------------ e-mail (admin)
+export async function saveEmailSettings(_p: ActionState, fd: FormData): Promise<ActionState> {
+  return guarded(async () => {
+    const s = await requireAdmin();
+    const cur = await getEmailSettings();
+    const cap = Number(str(fd, "cap", 6));
+    if (!Number.isInteger(cap) || cap < 0 || cap > 100000) throw new AppError("err_invalid_input");
+    const key = str(fd, "key", 300);
+    const from = str(fd, "from", 200);
+    const redirect = str(fd, "redirect", 200);
+    if (redirect && !validAddress(redirect)) throw new AppError("err_invalid_input");
+    if (from && !/^[^<>\r\n]{0,80}<[^<>\s]+@[^<>\s]+>$|^[^<>\s]+@[^<>\s]+$/.test(from)) throw new AppError("err_invalid_input");
+    await setSetting("email", { ...cur, enabled: fd.get("enabled") === "on", daily_cap: cap, key: key || cur.key, from: from || cur.from, redirect_to: redirect }, s.userId);
+    await audit({ by: s.userId, action: "settings.messaging", entity: "platform_settings", entityId: "email", detail: { enabled: fd.get("enabled") === "on", cap, key: !!key, from: !!from, redirect: !!redirect } });
+    revalidatePath("/admin/messaging");
+  });
+}
+
+export async function testEmail(): Promise<ActionState> {
+  return guarded(async () => {
+    const s = await requireActive();
+    const r = await sendTestEmail(s.userId);
+    if (r === "not_configured") throw new AppError("err_email_not_configured");
+    if (r === "no_address") throw new AppError("err_no_address");
+    if (r === "failed") throw new AppError("err_network");
+    return "ok";
+  });
+}

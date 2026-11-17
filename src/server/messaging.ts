@@ -8,6 +8,7 @@ import {
   CODE_RE, URGENT_KINDS, buildLineMessage, generateCode, hashCode, nextAttemptDelayMinutes, normalizeCode, pushLine, quotaAllows, replyLine, safeAppUrl,
   type LineConfig, type PushResult,
 } from "@/server/line-core";
+import { flushEmail } from "@/server/email";
 import { getSetting, setSetting } from "@/server/settings";
 import { supabaseAdmin } from "@/server/privileged/supabase-admin";
 
@@ -229,6 +230,6 @@ export async function runCron() {
   const admin = supabaseAdmin();
   const tick = await admin.rpc("run_tick");
   if (tick.error) console.error("run_tick failed", tick.error.message);
-  const [line, company] = await Promise.all([flushLine(), flushCompany()]);
-  return { tick: tick.data ?? null, tickError: tick.error?.message ?? null, line, company };
+  const [line, company, email] = await Promise.all([flushLine(), flushCompany(), flushEmail()]);
+  return { tick: tick.data ?? null, tickError: tick.error?.message ?? null, line, company, email };
 }

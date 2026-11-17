@@ -4,6 +4,15 @@ export const THEME_COLOR = "#0E7A5C";
 export const BACKGROUND_COLOR = "#F4FAF6";
 
 // LINE Flex cards cannot use CSS variables: same palette as theme.css, as literals.
+/** E-mail clients ignore CSS files: the few colours an e-mail needs are written inline, so they live here with the LINE ones. */
+export const EMAIL_COLORS = {
+  text: "#10282B",
+  muted: "#506468",
+  button: "#0E7A5C",
+  buttonText: "#FFFFFF",
+  warning: "#B42318",
+} as const;
+
 export const LINE_COLORS = {
   title: "#0A6149", // primary-hover (7.5:1 on white)
   text: "#10282B", // ink

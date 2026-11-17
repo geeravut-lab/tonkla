@@ -9,6 +9,7 @@ import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { Deadline } from "@/components/reports/Deadline";
 import { LiveTopic } from "@/components/shell/LiveTopic";
+import { AdoptBlock, IdeaExtras } from "@/components/ideas/IdeaExtras";
 import { addIdeaComment, addOutcome, ideaAssign, ideaScore, ideaShare, ideaTransition, ideaVote, verifyOutcome } from "@/app/actions/ideas";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -49,6 +50,7 @@ export default async function IdeaPage({ params, searchParams }: { params: Promi
           <p>{g.problem_or_opportunity}</p>
           <p><span className="font-semibold">{t.idea_field_benefit}: </span>{g.expected_benefit}</p>
         </div>
+        <AdoptBlock ideaId={id} s={s} t={t} ownCompany={g.company_id ?? null} />
       </article>
     );
   }
@@ -325,6 +327,8 @@ export default async function IdeaPage({ params, searchParams }: { params: Promi
           ) : null}
         </section>
       ) : null}
+
+      <IdeaExtras idea={{ id: i.id, company_id: i.company_id, stage: i.stage, visibility: i.visibility }} t={t} canManage={canManage} />
 
       <section aria-labelledby="ic" className="flex flex-col gap-3">
         <h2 id="ic" className="text-lg font-semibold">{t.idea_comments} ({(comments.data ?? []).length})</h2>

@@ -19,12 +19,16 @@ export default async function NotificationSettingsPage() {
   await assertFeatureForPage("line_notifications", s.memberships[0]?.companyId);
   let status = "none" as "none" | "pending" | "active" | "stopped";
   const prefs = new Map<string, boolean>();
+  const emailPrefs = new Map<string, boolean>();
   if (!isFixtureMode()) {
     const sb = await createClient();
-    const [ch, pr] = await Promise.all([sb.rpc("my_channels"), sb.from("notification_prefs").select("grp, line").eq("user_id", s.userId)]);
+    const [ch, pr] = await Promise.all([sb.rpc("my_channels"), sb.from("notification_prefs").select("grp, line, email").eq("user_id", s.userId)]);
     const line = (ch.data ?? []).find((c) => c.channel === "line");
     if (line) status = line.status as typeof status;
-    for (const p of pr.data ?? []) prefs.set(p.grp, p.line);
+    for (const p of pr.data ?? []) {
+      prefs.set(p.grp, p.line);
+      emailPrefs.set(p.grp, p.email);
+    }
   }
   const cfg = isFixtureMode() ? null : await getLineConfig();
   return (
@@ -37,23 +41,31 @@ export default async function NotificationSettingsPage() {
       <div className="tk-card p-5">
         <LineLinkPanel status={status} configured={!!cfg} basicId={cfg?.basicId ?? null} />
       </div>
-      {status === "active" ? (
+      {(
         <div className="tk-card p-5">
-          <h2 className="mb-1 text-lg font-semibold">{t.pref_title}</h2>
-          <p className="mb-3 text-sm text-muted">{t.pref_help}</p>
+          <h2 className="mb-1 text-lg font-semibold">{t.pref_email_title}</h2>
+          <p className="mb-1 text-sm text-muted">{t.pref_help}</p>
+          <p className="mb-3 text-sm text-muted">{t.pref_email_help}</p>
           <ul className="flex flex-col divide-y divide-line">
             {(["work", "news", "reminders"] as const).map((g) => (
               <li key={g} className="py-3">
                 <StatefulForm action={savePref} successText={t.admin_saved} className="flex flex-wrap items-center justify-between gap-3">
                   <input type="hidden" name="grp" value={g} />
+                  {status === "active" ? <input type="hidden" name="hasLine" value="1" /> : null}
                   <span className="flex flex-col">
                     <span className="font-medium">{(t as Record<string, string>)[`grp_${g}`]}</span>
                     <span className="text-sm text-muted">{(t as Record<string, string>)[`grp_${g}_help`]}</span>
                   </span>
                   <span className="flex items-center gap-3">
+                    {status === "active" ? (
+                      <label className="flex min-h-11 items-center gap-2">
+                        <input type="checkbox" name="line" defaultChecked={prefs.get(g) ?? true} className="size-6 accent-primary" />
+                        {t.pref_line}
+                      </label>
+                    ) : null}
                     <label className="flex min-h-11 items-center gap-2">
-                      <input type="checkbox" name="line" defaultChecked={prefs.get(g) ?? true} className="size-6 accent-primary" />
-                      {t.pref_line}
+                      <input type="checkbox" name="email" defaultChecked={emailPrefs.get(g) ?? false} className="size-6 accent-primary" />
+                      {t.pref_email}
                     </label>
                     <PendingButton variant="secondary" pendingLabel={t.pref_saving} className="!min-h-11">
                       {t.save}
@@ -64,7 +76,7 @@ export default async function NotificationSettingsPage() {
             ))}
           </ul>
         </div>
-      ) : null}
+      )}
     </section>
   );
 }

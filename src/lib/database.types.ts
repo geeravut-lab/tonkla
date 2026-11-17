@@ -325,6 +325,78 @@ export type Database = {
           },
         ]
       }
+      annual_awards: {
+        Row: {
+          category: string
+          company_id: string
+          created_at: string
+          granted_by: string
+          id: string
+          idea_id: string
+          note: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          category: string
+          company_id: string
+          created_at?: string
+          granted_by: string
+          id?: string
+          idea_id: string
+          note: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          category?: string
+          company_id?: string
+          created_at?: string
+          granted_by?: string
+          id?: string
+          idea_id?: string
+          note?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "annual_awards_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annual_awards_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annual_awards_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annual_awards_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annual_awards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anon_token_quota: {
         Row: {
           day: string
@@ -756,6 +828,135 @@ export type Database = {
           },
         ]
       }
+      communities: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          key: string
+          name_en: string
+          name_th: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          id?: string
+          key: string
+          name_en?: string
+          name_th: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          key?: string
+          name_en?: string
+          name_th?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          body: string
+          community_id: string
+          created_at: string
+          hidden: boolean
+          id: string
+          parent_id: string | null
+        }
+        Insert: {
+          author_id: string
+          body: string
+          community_id: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          parent_id?: string | null
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          community_id?: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           business_unit_id: string | null
@@ -765,6 +966,7 @@ export type Database = {
           is_demo: boolean
           name_en: string
           name_th: string
+          pilot_cap_thb: number
           response_sla_hours: number
           settings: Json
           status: string
@@ -780,6 +982,7 @@ export type Database = {
           is_demo?: boolean
           name_en?: string
           name_th: string
+          pilot_cap_thb?: number
           response_sla_hours?: number
           settings?: Json
           status?: string
@@ -795,6 +998,7 @@ export type Database = {
           is_demo?: boolean
           name_en?: string
           name_th?: string
+          pilot_cap_thb?: number
           response_sla_hours?: number
           settings?: Json
           status?: string
@@ -1280,6 +1484,73 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_adoptions: {
+        Row: {
+          adopted_by: string
+          company_id: string
+          created_at: string
+          new_idea: string
+          source_idea: string
+        }
+        Insert: {
+          adopted_by: string
+          company_id: string
+          created_at?: string
+          new_idea: string
+          source_idea: string
+        }
+        Update: {
+          adopted_by?: string
+          company_id?: string
+          created_at?: string
+          new_idea?: string
+          source_idea?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_adoptions_adopted_by_fkey"
+            columns: ["adopted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_adoptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_adoptions_new_idea_fkey"
+            columns: ["new_idea"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_adoptions_new_idea_fkey"
+            columns: ["new_idea"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_adoptions_source_idea_fkey"
+            columns: ["source_idea"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_adoptions_source_idea_fkey"
+            columns: ["source_idea"]
+            isOneToOne: false
+            referencedRelation: "ideas"
             referencedColumns: ["id"]
           },
         ]
@@ -2035,16 +2306,19 @@ export type Database = {
       }
       notification_prefs: {
         Row: {
+          email: boolean
           grp: string
           line: boolean
           user_id: string
         }
         Insert: {
+          email?: boolean
           grp: string
           line?: boolean
           user_id: string
         }
         Update: {
+          email?: boolean
           grp?: string
           line?: boolean
           user_id?: string
@@ -2154,6 +2428,135 @@ export type Database = {
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pilot_budgets: {
+        Row: {
+          amount_thb: number
+          company_id: string
+          created_at: string
+          decide_by: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string
+          escalated_at: string | null
+          id: string
+          idea_id: string
+          purpose: string
+          requested_by: string
+          spent_thb: number
+          status: string
+        }
+        Insert: {
+          amount_thb: number
+          company_id: string
+          created_at?: string
+          decide_by: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string
+          escalated_at?: string | null
+          id?: string
+          idea_id: string
+          purpose: string
+          requested_by: string
+          spent_thb?: number
+          status?: string
+        }
+        Update: {
+          amount_thb?: number
+          company_id?: string
+          created_at?: string
+          decide_by?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string
+          escalated_at?: string | null
+          id?: string
+          idea_id?: string
+          purpose?: string
+          requested_by?: string
+          spent_thb?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_budgets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_budgets_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_budgets_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_budgets_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_budgets_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pilot_spends: {
+        Row: {
+          amount_thb: number
+          budget_id: string
+          created_at: string
+          id: number
+          note: string
+          recorded_by: string
+        }
+        Insert: {
+          amount_thb: number
+          budget_id: string
+          created_at?: string
+          id?: never
+          note?: string
+          recorded_by: string
+        }
+        Update: {
+          amount_thb?: number
+          budget_id?: string
+          created_at?: string
+          id?: never
+          note?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_spends_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_spends_recorded_by_fkey"
+            columns: ["recorded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -3245,6 +3648,143 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          created_at: string
+          invited_by: string | null
+          status: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          invited_by?: string | null
+          status?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          invited_by?: string | null
+          status?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_posts: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: number
+          team_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: never
+          team_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: never
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_posts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          idea_id: string | null
+          lead_id: string
+          name: string
+          purpose: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idea_id?: string | null
+          lead_id: string
+          name: string
+          purpose?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idea_id?: string | null
+          lead_id?: string
+          name?: string
+          purpose?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teams_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teams_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       directory: {
@@ -3399,6 +3939,10 @@ export type Database = {
         Args: { p_company: string; p_email: string }
         Returns: string
       }
+      admin_set_pilot_cap: {
+        Args: { p_cap: number; p_company: string }
+        Returns: undefined
+      }
       admin_set_points: {
         Args: { p_key: string; p_points: number }
         Returns: undefined
@@ -3423,6 +3967,10 @@ export type Database = {
           read_at: string
           user_id: string
         }[]
+      }
+      annual_award_grant: {
+        Args: { p_category: string; p_idea: string; p_note: string }
+        Returns: string
       }
       anon_followup: {
         Args: { p_code: string; p_message: string; p_secret_hash: string }
@@ -3458,6 +4006,18 @@ export type Database = {
         Args: { p_idea: string; p_kind: string; p_note: string }
         Returns: string
       }
+      budget_decide: {
+        Args: { p_approve: boolean; p_id: string; p_note?: string }
+        Returns: undefined
+      }
+      budget_request: {
+        Args: { p_amount: number; p_idea: string; p_purpose: string }
+        Returns: string
+      }
+      budget_spend: {
+        Args: { p_amount: number; p_id: string; p_note?: string }
+        Returns: undefined
+      }
       can_coordinate: { Args: { p_company: string }; Returns: boolean }
       challenge_close: { Args: { p_id: string }; Returns: undefined }
       challenge_create: {
@@ -3485,6 +4045,51 @@ export type Database = {
         }[]
       }
       claim_roster: { Args: never; Returns: number }
+      communities_list: {
+        Args: never
+        Returns: {
+          description: string
+          id: string
+          joined: boolean
+          key: string
+          members: number
+          moderator: boolean
+          name_en: string
+          name_th: string
+        }[]
+      }
+      community_create: {
+        Args: {
+          p_description: string
+          p_key: string
+          p_name_en: string
+          p_name_th: string
+        }
+        Returns: string
+      }
+      community_hide: {
+        Args: { p_on: boolean; p_post: string }
+        Returns: undefined
+      }
+      community_join: { Args: { p_id: string }; Returns: undefined }
+      community_leave: { Args: { p_id: string }; Returns: undefined }
+      community_post: {
+        Args: { p_body: string; p_id: string; p_parent?: string }
+        Returns: string
+      }
+      community_roster: {
+        Args: { p_id: string }
+        Returns: {
+          company_name: string
+          display_name: string
+          role: string
+          user_id: string
+        }[]
+      }
+      community_set_moderator: {
+        Args: { p_id: string; p_on: boolean; p_user: string }
+        Returns: undefined
+      }
       company_dashboard: {
         Args: { p_company: string; p_days?: number }
         Returns: Json
@@ -3578,6 +4183,11 @@ export type Database = {
         }
         Returns: string
       }
+      idea_adopt: {
+        Args: { p_company: string; p_source: string }
+        Returns: string
+      }
+      idea_adoption_count: { Args: { p_idea: string }; Returns: number }
       idea_assign: {
         Args: { p_id: string; p_owner: string }
         Returns: undefined
@@ -3772,6 +4382,7 @@ export type Database = {
       }
       revoke_admin: { Args: { p_user: string }; Returns: undefined }
       revoke_role: { Args: { p_id: string }; Returns: undefined }
+      run_budget_escalation: { Args: never; Returns: number }
       run_emergency_escalation: { Args: never; Returns: number }
       run_flush: { Args: never; Returns: undefined }
       run_tick: { Args: never; Returns: Json }
@@ -3839,6 +4450,32 @@ export type Database = {
           p_title: string
         }
         Returns: string
+      }
+      team_candidates: {
+        Args: { p_query: string }
+        Returns: {
+          company_name: string
+          department: string
+          display_name: string
+          user_id: string
+        }[]
+      }
+      team_close: { Args: { p_team: string }; Returns: undefined }
+      team_create: {
+        Args: { p_idea: string; p_name: string; p_purpose: string }
+        Returns: string
+      }
+      team_invite: {
+        Args: { p_team: string; p_user: string }
+        Returns: undefined
+      }
+      team_post: {
+        Args: { p_body: string; p_team: string }
+        Returns: undefined
+      }
+      team_respond: {
+        Args: { p_accept: boolean; p_team: string }
+        Returns: undefined
       }
       unlink_channel: { Args: { p_channel: string }; Returns: undefined }
     }
