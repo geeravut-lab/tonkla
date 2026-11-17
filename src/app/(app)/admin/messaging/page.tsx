@@ -5,10 +5,11 @@ import { isFuture } from "@/lib/time";
 import { requireAdmin } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { MESSAGING_DEFAULT, getMessaging } from "@/server/messaging";
+import { emailStatus, getEmailSettings } from "@/server/email";
 import { getSetting } from "@/server/settings";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
-import { resumeLine, saveLineCredentials, saveMessaging } from "@/app/actions/messaging";
+import { resumeLine, saveEmailSettings, saveLineCredentials, saveMessaging, testEmail } from "@/app/actions/messaging";
 
 export async function generateMetadata() {
   return { title: (await getDict()).mg_title };
@@ -18,6 +19,7 @@ const field = "min-h-12 w-full rounded-control border-2 border-field-border bg-s
 
 export default async function MessagingAdminPage() {
   const [t] = await Promise.all([getDict(), requireAdmin()]);
+  const [es, est] = await Promise.all([getEmailSettings(), emailStatus()]);
   const [m, saved, pause, cron] = await Promise.all([getMessaging(), getSetting<{ secret?: string; token?: string; basicId?: string }>("line", {}), getSetting<string | null>("line_pause_until", null), getSetting<{ url?: string; secret?: string }>("cron", {})]);
   const envOk = !!(process.env.LINE_CHANNEL_SECRET && process.env.LINE_CHANNEL_ACCESS_TOKEN && process.env.LINE_BASIC_ID);
   const dbOk = !!(saved.secret && saved.token && saved.basicId);
@@ -94,6 +96,44 @@ export default async function MessagingAdminPage() {
           {t.mg_save}
         </PendingButton>
         <p className="text-sm text-muted">{t.admin_cache_note}</p>
+      </StatefulForm>
+
+      <div className="tk-card flex flex-col gap-2 p-5">
+        <h2 className="text-lg font-semibold">{t.em_status}</h2>
+        <p className={est.configured ? "font-medium text-success-fg" : "font-medium text-warning-fg"}>{est.configured ? `✓ ${est.source === "env" ? t.em_ok_env : t.em_ok_saved}` : `⚠ ${t.em_none}`}</p>
+        {est.from ? <p className="text-sm">{fmt(t.em_from, { from: est.from })}</p> : null}
+        <p className={`text-sm font-medium ${est.redirectTo ? "text-warning-fg" : "text-muted"}`}>{est.redirectTo ? fmt(t.em_redirect, { to: est.redirectTo }) : t.em_no_redirect}</p>
+        <StatefulForm action={testEmail} successText={t.em_test_sent}>
+          <PendingButton variant="secondary" pendingLabel={t.em_testing} className="!min-h-11">
+            {t.em_test}
+          </PendingButton>
+        </StatefulForm>
+      </div>
+
+      <StatefulForm action={saveEmailSettings} successText={t.admin_saved} className="tk-card flex max-w-xl flex-col gap-3 p-5">
+        <label className="flex min-h-11 items-center gap-3 font-medium">
+          <input type="checkbox" name="enabled" defaultChecked={es.enabled} className="size-6 accent-primary" />
+          {t.em_enabled}
+        </label>
+        <label className="flex flex-col gap-1 font-medium">
+          {t.em_cap}
+          <input type="number" name="cap" min={0} defaultValue={es.daily_cap} className={`${field} w-40`} />
+        </label>
+        <label className="flex flex-col gap-1 font-medium">
+          {t.em_key}
+          <input name="key" type="password" autoComplete="off" maxLength={300} className={field} />
+        </label>
+        <label className="flex flex-col gap-1 font-medium">
+          {t.em_from_field}
+          <input name="from" autoComplete="off" maxLength={200} defaultValue={es.from ?? ""} className={field} />
+        </label>
+        <label className="flex flex-col gap-1 font-medium">
+          {t.em_redirect_field}
+          <input name="redirect" type="email" autoComplete="off" maxLength={200} defaultValue={es.redirect_to ?? ""} className={field} />
+        </label>
+        <PendingButton pendingLabel={t.em_saving} className="self-start">
+          {t.em_save}
+        </PendingButton>
       </StatefulForm>
 
       <div className="tk-card p-5">

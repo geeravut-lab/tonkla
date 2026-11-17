@@ -14,11 +14,14 @@ import * as comm2 from "./dict/comm2";
 import * as recog from "./dict/recog";
 import * as kb from "./dict/kb";
 import * as gdash from "./dict/gdash";
+import * as email from "./dict/email";
+import * as p3 from "./dict/p3";
+import * as aif from "./dict/aif";
 
 // Add a module here when a milestone adds a dictionary file.
-const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog, kb, gdash];
+const modules = [core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog, kb, gdash, email, p3, aif];
 
-type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th & typeof password.th & typeof rollout.th & typeof anon.th & typeof comm2.th & typeof recog.th & typeof kb.th & typeof gdash.th;
+type ThAll = typeof core.th & typeof identity.th & typeof admin.th & typeof comm.th & typeof reports.th & typeof ideas.th & typeof messaging.th & typeof dash.th & typeof ai.th & typeof password.th & typeof rollout.th & typeof anon.th & typeof comm2.th & typeof recog.th & typeof kb.th & typeof gdash.th & typeof email.th & typeof p3.th & typeof aif.th;
 export type Dict = { [K in keyof ThAll]: string };
 export type DictKey = keyof Dict;
 export type Locale = "th" | "en";

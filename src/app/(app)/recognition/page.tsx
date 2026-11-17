@@ -9,6 +9,8 @@ import { assertFeatureForPage } from "@/server/page-guards";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { grantAward } from "@/app/actions/recog";
+import { grantAnnualAward } from "@/app/actions/p3";
+import { featureEnabled } from "@/server/features";
 
 export async function generateMetadata() {
   return { title: (await getDict()).rc_title };
@@ -27,6 +29,9 @@ export default async function RecognitionPage() {
   let names = new Map<string, string>();
   let titles = new Map<string, string>();
   let candidates: { id: string; title: string; stage: string }[] = [];
+  const annualOn = await featureEnabled("annual_awards", s.memberships[0]?.companyId);
+  let annual: { id: string; year: number; category: string; idea_id: string; company_id: string; user_id: string; note: string }[] = [];
+  let annualCandidates: { id: string; title: string }[] = [];
   const canGrant = s.isCentral || s.coordinatedCompanies.length > 0 || s.execCompanies.length > 0;
   if (!isFixtureMode()) {
     const sb = await createClient();
@@ -37,6 +42,13 @@ export default async function RecognitionPage() {
     names = new Map((uids.length ? ((await sb.from("directory").select("user_id, display_name").in("user_id", uids)).data ?? []) : []).flatMap((p) => (p.user_id ? [[p.user_id, p.display_name ?? ""] as [string, string]] : [])));
     const iids = [...new Set(awards.map((a) => a.idea_id))];
     titles = new Map((iids.length ? ((await sb.from("ideas").select("id, title").in("id", iids)).data ?? []) : []).map((i) => [i.id, i.title]));
+    if (annualOn) {
+      annual = (await sb.from("annual_awards").select("id, year, category, idea_id, company_id, user_id, note").order("year", { ascending: false }).limit(50)).data ?? [];
+      const aids = [...new Set(annual.map((a) => a.idea_id))];
+      const extra = aids.length ? ((await sb.from("group_ideas").select("id, title").in("id", aids)).data ?? []) : [];
+      for (const g of extra) if (g.id && g.title && !titles.has(g.id)) titles.set(g.id, g.title);
+      if (s.isCentral) annualCandidates = (await sb.from("ideas").select("id, title").in("stage", ["piloting", "scaled", "declined"]).order("updated_at", { ascending: false }).limit(150)).data ?? [];
+    }
     if (canGrant) candidates = (await sb.from("ideas").select("id, title, stage").in("stage", ["piloting", "scaled", "declined"]).order("updated_at", { ascending: false }).limit(100)).data ?? [];
   }
   const total = pts.reduce((a, p) => a + p.points, 0);
@@ -91,6 +103,58 @@ export default async function RecognitionPage() {
           </ul>
         )}
       </div>
+      {annualOn ? (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl font-bold">{t.aa_title}</h2>
+          {annual.length === 0 ? (
+            <p className="text-muted">{t.aa_none}</p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {annual.map((a) => (
+                <li key={a.id} className="tk-card flex flex-col gap-1 border-2 border-sun p-4">
+                  <span className="text-sm font-semibold text-primary-hover">{tt[`rc_kind_${a.category}`]} · {fmt(t.aa_year, { year: a.year })}</span>
+                  <span className="font-semibold">{titles.get(a.idea_id) ?? ""}</span>
+                  <span className="text-sm text-muted">{fmt(t.rc_winner, { name: names.get(a.user_id) ?? "" })}</span>
+                  <span className="whitespace-pre-wrap">{a.note}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+      {annualOn && s.isCentral && annualCandidates.length > 0 ? (
+        <StatefulForm action={grantAnnualAward} className="tk-card flex flex-col gap-3 p-5">
+          <h2 className="text-xl font-bold">{t.aa_grant}</h2>
+          <p className="text-sm text-muted">{t.aa_grant_help}</p>
+          <label className="flex flex-col gap-1 font-medium">
+            {t.aa_idea}
+            <select name="idea" className={input}>
+              {annualCandidates.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 font-medium">
+            {t.aa_cat}
+            <select name="category" className={input}>
+              {["idea_of_year", "impact_of_year", "dare_to_try_year", "collaboration_of_year"].map((k) => (
+                <option key={k} value={k}>
+                  {tt[`rc_kind_${k}`]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 font-medium">
+            {t.aa_note}
+            <textarea name="note" required minLength={3} maxLength={1000} rows={3} className="min-h-24 w-full rounded-control border-2 border-field-border bg-surface px-3 py-2 text-base" />
+          </label>
+          <PendingButton pendingLabel={t.rc_granting} className="self-start">
+            {t.rc_grant_btn}
+          </PendingButton>
+        </StatefulForm>
+      ) : null}
       {canGrant && candidates.length > 0 ? (
         <StatefulForm action={grantAward} className="tk-card flex flex-col gap-3 p-5">
           <h2 className="text-xl font-bold">{t.rc_grant}</h2>

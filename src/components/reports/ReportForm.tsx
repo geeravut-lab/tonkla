@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { findSimilar, metoo, submitReport, type Similar } from "@/app/actions/reports";
+import { aiAssistReport, type ReportHelp } from "@/app/actions/aif";
 import { errorText, fmt } from "@/i18n";
 import { useT } from "@/i18n/client";
 import { ALLOWED_MIME, MAX_FILES, MAX_FILE_BYTES, SEVERITIES } from "@/lib/reports";
@@ -32,12 +33,13 @@ async function shrink(file: File): Promise<{ blob: Blob; mime: string }> {
 
 const input = "min-h-12 w-full rounded-control border-2 border-field-border bg-surface px-3 text-base";
 
-export function ReportForm({ companies }: { companies: CompanyOption[] }) {
+export function ReportForm({ companies, aiEnabled = false }: { companies: CompanyOption[]; aiEnabled?: boolean }) {
   const t = useT();
   const router = useRouter();
   const [companyId, setCompanyId] = useState(companies[0]?.id ?? "");
   const company = companies.find((c) => c.id === companyId) ?? companies[0]!;
   const [category, setCategory] = useState("");
+  const [aiHelp, setAiHelp] = useState<ReportHelp | null>(null);
   const [severity, setSeverity] = useState("medium");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -93,6 +95,10 @@ export function ReportForm({ companies }: { companies: CompanyOption[] }) {
     }
   }
 
+  async function aiAssist() {
+    setAiHelp(await aiAssistReport({ company: companyId, title, description, similar: similar.map((x) => ({ id: x.id, title: x.title })) }));
+  }
+
   async function lookup() {
     if (title.trim().length < 3) return setSimilar([]);
     setSimilar(await findSimilar(companyId, title));
@@ -139,7 +145,10 @@ export function ReportForm({ companies }: { companies: CompanyOption[] }) {
             {similar.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex flex-col">
-                  <span className="font-medium">{s.title}</span>
+                  <span className="font-medium">
+                    {s.title}
+                    {aiHelp?.ok && aiHelp.duplicates.includes(s.id) ? <span className="ml-2 rounded-full bg-sun px-2.5 py-0.5 text-xs font-semibold text-ink">{t.aif_dup}</span> : null}
+                  </span>
                   <span className="flex items-center gap-2 text-sm text-muted">
                     <StatusChip status={s.status} t={t} />
                     {fmt(t.rep_metoo_count, { n: s.metoo_count })}
@@ -151,6 +160,33 @@ export function ReportForm({ companies }: { companies: CompanyOption[] }) {
               </li>
             ))}
           </ul>
+        </div>
+      ) : null}
+
+      {aiEnabled ? (
+        <div className="flex flex-col gap-2">
+          <PendingButton variant="secondary" pendingLabel={t.aif_thinking} onClick={aiAssist} className="self-start !min-h-11">
+            {t.aif_report}
+          </PendingButton>
+          {aiHelp && !aiHelp.ok ? (
+            <p role="alert" className="text-sm font-medium text-danger-fg">⚠ {errorText(aiHelp.error, t)}</p>
+          ) : null}
+          {aiHelp?.ok ? (
+            <div className="rounded-control bg-info-bg px-3 py-2 text-sm text-info-fg">
+              {aiHelp.category_id ? (
+                <>
+                  <p>{fmt(t.aif_report_done, { category: company.categories.find((c) => c.id === aiHelp.category_id)?.name ?? "", severity: aiHelp.severity ? (t as Record<string, string>)[`sev_${aiHelp.severity}`] ?? aiHelp.severity : "" })}</p>
+                  {aiHelp.reason ? <p>{aiHelp.reason}</p> : null}
+                  <PendingButton variant="secondary" pendingLabel={t.aif_thinking} onClick={() => { setCategory(aiHelp.category_id ?? ""); if (aiHelp.severity) setSeverity(aiHelp.severity); }} className="mt-2 !min-h-11">
+                    {t.aif_report_apply}
+                  </PendingButton>
+                </>
+              ) : (
+                <p>{t.aif_report_none}</p>
+              )}
+              <p className="mt-1 text-xs">{t.aif_suggest_only}</p>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

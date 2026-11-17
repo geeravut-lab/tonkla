@@ -1,4 +1,4 @@
-import { PHASE2_FEATURES, FEATURES } from "@/config/features";
+import { ROLLOUT_FEATURES, FEATURES } from "@/config/features";
 import { getDict } from "@/i18n/server";
 import { requireAdmin } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
@@ -58,7 +58,7 @@ export default async function RolloutPage() {
         </label>
         <fieldset className="flex flex-wrap gap-2">
           <legend className="mb-1 font-medium">{t.ro_wave_features}</legend>
-          {PHASE2_FEATURES.map((f) => (
+          {ROLLOUT_FEATURES.map((f) => (
             <label key={f} className="flex min-h-11 items-center gap-2 rounded-full bg-mint px-3 text-sm">
               <input type="checkbox" name="features" value={f} className="size-5 accent-primary" />
               {label(f)}

@@ -74,7 +74,7 @@ describe("points follow adoption, not volume", () => {
   });
   it("points are private to their owner; the rules are readable by everyone and editable by platform admins only", async () => {
     expect((await rows(U.bob, "select * from public.recognition_points")).length).toBe(0);
-    expect((await rows(U.bob, "select * from public.recognition_rules")).length).toBe(5);
+    expect((await rows(U.bob, "select * from public.recognition_rules")).length).toBe(7);
     expect(await h.denied(U.carol, "select public.admin_set_points('scaled', 99)")).toMatch(/err_forbidden|permission/);
     await call(U.frank, "select public.admin_set_points('scaled', 40)");
     const id = await submit(U.dave);

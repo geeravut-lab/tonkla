@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import { fmt } from "@/i18n";
-import { getDict } from "@/i18n/server";
+import { getDict, getLocale } from "@/i18n/server";
 import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { featureEnabled } from "@/server/features";
 import { assertFeatureForPage } from "@/server/page-guards";
+import { TranslateButton } from "@/components/ai/AiPanels";
 import { PendingButton } from "@/components/ui/PendingButton";
 import { StatefulForm } from "@/components/ui/StatefulForm";
 import { LiveTopic } from "@/components/shell/LiveTopic";
@@ -23,7 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function AnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
-  const [t, s] = await Promise.all([getDict(), requireActive()]);
+  const [t, s, locale] = await Promise.all([getDict(), requireActive(), getLocale()]);
+  const aiOn = await featureEnabled("ai_assistant", s.memberships[0]?.companyId);
   await assertFeatureForPage("announcements", s.memberships[0]?.companyId);
   const sb = await createClient();
   const { data: a } = await sb.from("announcements").select("id, kind, title, body, requires_ack, ack_due_at, status, author_id, company_id, publish_at, pinned, profiles(display_name)").eq("id", id).maybeSingle();
@@ -62,6 +65,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       </header>
 
       <div className="tk-card p-5 break-words whitespace-pre-wrap">{a.body}</div>
+      {aiOn ? <TranslateButton text={`${a.title}\n\n${a.body}`} to={locale === "en" ? "th" : "en"} /> : null}
 
       {a.requires_ack && a.status === "published" ? (
         <div className="tk-card flex flex-col gap-2 border-sun bg-warning-bg/40 p-4">

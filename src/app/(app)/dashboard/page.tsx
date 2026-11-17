@@ -5,6 +5,8 @@ import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { isFixtureMode } from "@/lib/env";
 import { PendingLink } from "@/components/ui/PendingLink";
+import { AiDigest } from "@/components/ai/AiPanels";
+import { featureEnabled } from "@/server/features";
 
 export async function generateMetadata() {
   return { title: (await getDict()).dash_title };
@@ -36,6 +38,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     const sb = await createClient();
     d = ((await sb.rpc("company_dashboard", { p_company: company.id, p_days: 30 })).data ?? null) as unknown as Dash | null;
   }
+  const aiOn = await featureEnabled("ai_assistant", company.id);
   const small = (d?.members ?? 0) < 20;
   const pct = (n: number, of: number) => (small || of === 0 ? `${n}` : fmt(t.dash_pct, { n: Math.round((n / of) * 100) }));
   const metric = (k: string) => (t as Record<string, string>)[`idea_out_${k}`] ?? k;
@@ -57,6 +60,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       ) : (
         <p className="font-semibold">{company.name}</p>
       )}
+      {aiOn ? <AiDigest company={company.id} /> : null}
       {d ? (
         <>
           <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">

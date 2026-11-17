@@ -25,6 +25,7 @@ export function FilterSearch({ path, extra = {}, q, filter, filterLabel, options
         {t.lib_search}
         <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} placeholder={t.lib_search_ph} maxLength={100} enterKeyHint="search" className={field} />
       </label>
+      {options.length > 0 ? (
       <label className="flex flex-col gap-1 font-medium">
         {filterLabel}
         <select value={st} onChange={(e) => setSt(e.target.value)} className={field}>
@@ -36,6 +37,7 @@ export function FilterSearch({ path, extra = {}, q, filter, filterLabel, options
           ))}
         </select>
       </label>
+      ) : null}
       <PendingButton pendingLabel={t.lib_going} onClick={go} className="self-start">
         {t.lib_go}
       </PendingButton>

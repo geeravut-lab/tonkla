@@ -197,6 +197,19 @@ begin
   execute 'reset role';
   steps := steps || 'knowledge,group-dashboard,';
 
+  -- ---- Phase 3: communities are members-only, teams open the idea to invited members only, budgets need a second person, annual awards are central-only
+  perform set_config('request.jwt.claims', json_build_object('sub', erin, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  v := public.community_create('smoke_fin', 'smoke การเงิน', 'Finance', '');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  perform public.community_join(v);
+  perform public.community_post(v, 'smoke post');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', bob, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select count(*) from public.community_posts where community_id = v) <> 0 then raise exception 'FAIL non-member reads community'; end if;
+  begin perform public.annual_award_grant(gen_random_uuid(), 'idea_of_year', 'smoke'); raise exception 'FAIL annual award by staff'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  begin perform public.team_create(null, 'smoke team', ''); raise exception 'FAIL team without idea by staff'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  execute 'reset role';
+  steps := steps || 'communities,teams,annual,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

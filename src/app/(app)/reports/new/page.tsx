@@ -3,6 +3,7 @@ import { getDict, getLocale } from "@/i18n/server";
 import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { isFixtureMode } from "@/lib/env";
+import { featureEnabled } from "@/server/features";
 import { assertFeatureForPage } from "@/server/page-guards";
 import { ReportForm, type CompanyOption } from "@/components/reports/ReportForm";
 
@@ -24,10 +25,11 @@ export default async function NewReportPage() {
     name: m.companyName,
     categories: cats.filter((c) => c.company_id === m.companyId).map((c) => ({ id: c.id, name: locale === "en" && c.name_en ? c.name_en : c.name_th, severity: c.default_severity })),
   }));
+  const aiOn = await featureEnabled("ai_assistant", s.memberships[0]?.companyId);
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold md:text-3xl">{t.rep_new}</h1>
-      <ReportForm companies={companies} />
+      <ReportForm companies={companies} aiEnabled={aiOn} />
     </section>
   );
 }
