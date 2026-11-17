@@ -18,13 +18,17 @@ export default async function NotificationSettingsPage() {
   const [t, s] = await Promise.all([getDict(), requireActive()]);
   await assertFeatureForPage("line_notifications", s.memberships[0]?.companyId);
   let status = "none" as "none" | "pending" | "active" | "stopped";
+  let lastError: string | null = null;
   const prefs = new Map<string, boolean>();
   const emailPrefs = new Map<string, boolean>();
   if (!isFixtureMode()) {
     const sb = await createClient();
     const [ch, pr] = await Promise.all([sb.rpc("my_channels"), sb.from("notification_prefs").select("grp, line, email").eq("user_id", s.userId)]);
     const line = (ch.data ?? []).find((c) => c.channel === "line");
-    if (line) status = line.status as typeof status;
+    if (line) {
+      status = line.status as typeof status;
+      lastError = line.last_error;
+    }
     for (const p of pr.data ?? []) {
       prefs.set(p.grp, p.line);
       emailPrefs.set(p.grp, p.email);
@@ -39,7 +43,7 @@ export default async function NotificationSettingsPage() {
         <p className="text-muted">{t.ln_intro}</p>
       </div>
       <div className="tk-card p-5">
-        <LineLinkPanel status={status} configured={!!cfg} basicId={cfg?.basicId ?? null} />
+        <LineLinkPanel status={status} configured={!!cfg} basicId={cfg?.basicId ?? null} lastError={lastError} />
       </div>
       {(
         <div className="tk-card p-5">
