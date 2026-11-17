@@ -40,3 +40,15 @@ describe("role and feature filtering", () => {
     expect(keys([])).not.toContain("admin");
   });
 });
+
+describe("menu order", () => {
+  it("a role's working pages come before the optional feature modules (they must be on the first screen of the More sheet)", () => {
+    const all = new Set(["coordinator", "exec", "admin", "central", "handler"]);
+    const feats = new Set(["emergency", "qa", "events", "polls", "challenges", "idea_library", "recognition", "knowledge_base", "teams", "pilot_budget", "communities", "anonymous_channel", "group_dashboard"]);
+    const keys = navFor(all, feats).map((n) => n.key);
+    const lastWork = Math.max(...["desk", "anon_cases", "group_dashboard", "dashboard", "admin"].map((k) => keys.indexOf(k)));
+    const firstFeature = Math.min(...["emergency", "qa", "events", "polls", "challenges", "library", "recognition", "knowledge", "teams", "budgets", "communities", "anonymous"].map((k) => keys.indexOf(k)));
+    expect(lastWork).toBeLessThan(firstFeature);
+    expect(keys.indexOf("desk")).toBeLessThanOrEqual(6);
+  });
+});

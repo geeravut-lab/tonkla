@@ -16,12 +16,19 @@ export type NavItem = {
 };
 
 // The single source of every menu (sidebar, bottom bar, More sheet). Never repeat these links elsewhere.
+// Order matters: the working pages of a role (desk, cases, dashboards, admin) come right after the inbox so they are on the first screen of
+// the More sheet and the sidebar, not below 15 optional modules.
 export const NAV: readonly NavItem[] = [
   { key: "home", href: "/", label: "nav_home", icon: "home", placement: "bar" },
   { key: "news", href: "/news", label: "nav_news", icon: "news", placement: "bar" },
   { key: "reports", href: "/reports", label: "nav_reports", icon: "alert", placement: "bar" },
   { key: "ideas", href: "/ideas", label: "nav_ideas", icon: "bulb", placement: "bar" },
   { key: "inbox", href: "/inbox", label: "nav_inbox", icon: "bell", placement: "more" },
+  { key: "desk", href: "/desk", label: "nav_desk", icon: "shield", placement: "more", roles: ["coordinator"] },
+  { key: "anon_cases", href: "/anonymous", label: "nav_anon_cases", icon: "shield", placement: "more", roles: ["handler"] },
+  { key: "group_dashboard", href: "/dashboard/group", label: "nav_group_dashboard", icon: "chart", placement: "more", roles: ["central"], feature: "group_dashboard" },
+  { key: "dashboard", href: "/dashboard", label: "nav_dashboard", icon: "chart", placement: "more", roles: ["exec", "coordinator"] },
+  { key: "admin", href: "/admin", label: "nav_admin", icon: "settings", placement: "more", roles: ["admin"] },
   { key: "directory", href: "/directory", label: "nav_directory", icon: "users", placement: "more" },
   { key: "account", href: "/account", label: "nav_account", icon: "user", placement: "more" },
   { key: "emergency", href: "/emergency", label: "nav_emergency", icon: "alert", placement: "more", feature: "emergency" },
@@ -36,11 +43,6 @@ export const NAV: readonly NavItem[] = [
   { key: "budgets", href: "/budgets", label: "nav_budgets", icon: "check", placement: "more", feature: "pilot_budget" },
   { key: "communities", href: "/communities", label: "nav_communities", icon: "users", placement: "more", feature: "communities" },
   { key: "anonymous", href: "/anonymous/new", label: "nav_anonymous", icon: "lock", placement: "more", feature: "anonymous_channel" },
-  { key: "anon_cases", href: "/anonymous", label: "nav_anon_cases", icon: "shield", placement: "more", roles: ["handler"] },
-  { key: "group_dashboard", href: "/dashboard/group", label: "nav_group_dashboard", icon: "chart", placement: "more", roles: ["central"], feature: "group_dashboard" },
-  { key: "desk", href: "/desk", label: "nav_desk", icon: "shield", placement: "more", roles: ["coordinator"] },
-  { key: "dashboard", href: "/dashboard", label: "nav_dashboard", icon: "chart", placement: "more", roles: ["exec", "coordinator"] },
-  { key: "admin", href: "/admin", label: "nav_admin", icon: "settings", placement: "more", roles: ["admin"] },
 ];
 
 /** Menu items a person may see (the server still checks every page and action itself). */
