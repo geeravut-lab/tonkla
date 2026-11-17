@@ -3,11 +3,12 @@ import * as core from "@/i18n/dict/core";
 import * as identity from "@/i18n/dict/identity";
 import * as admin from "@/i18n/dict/admin";
 import * as comm from "@/i18n/dict/comm";
+import * as reports from "@/i18n/dict/reports";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm };
+const MODULES = { core, identity, admin, comm, reports };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {

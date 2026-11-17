@@ -1,4 +1,5 @@
 import { fmt } from "@/i18n";
+import { noticeText } from "@/lib/notices";
 import { getDict } from "@/i18n/server";
 import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
@@ -14,10 +15,10 @@ export async function generateMetadata() {
 
 export default async function InboxPage() {
   const [t] = await Promise.all([getDict(), requireActive()]);
-  let rows: { id: string; title: string; body: string; href: string; read_at: string | null; created_at: string }[] = [];
+  let rows: { id: string; kind: string; params: unknown; title: string; body: string; href: string; read_at: string | null; created_at: string }[] = [];
   if (!isFixtureMode()) {
     const sb = await createClient();
-    rows = (await sb.from("notifications").select("id, title, body, href, read_at, created_at").order("created_at", { ascending: false }).limit(100)).data ?? [];
+    rows = (await sb.from("notifications").select("id, kind, params, title, body, href, read_at, created_at").order("created_at", { ascending: false }).limit(100)).data ?? [];
   }
   const unread = rows.filter((r) => !r.read_at).length;
   const when = (iso: string) => new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" });
@@ -47,7 +48,7 @@ export default async function InboxPage() {
                   {!r.read_at ? <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-sun" /> : null}
                   {r.title}
                 </span>
-                {r.body ? <span className="line-clamp-2 text-muted">{r.body}</span> : null}
+                {noticeText(t, r) ? <span className="line-clamp-2 text-muted">{noticeText(t, r)}</span> : null}
                 <span className="text-sm text-muted">{when(r.created_at)}</span>
               </PendingLink>
             </li>

@@ -14,6 +14,13 @@ const SUPABASE_SHIM = `
   create schema realtime;
   create table realtime.sent (id serial primary key, topic text, event text, payload jsonb);
   create function realtime.send(payload jsonb, event text, topic text, private boolean default true) returns void language sql as $$ insert into realtime.sent (topic, event, payload) values (topic, event, payload) $$;
+  create schema storage;
+  create table storage.buckets (id text primary key, name text, public boolean default false, file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text default auth.uid()::text);
+  alter table storage.objects enable row level security;
+  create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant select, insert on storage.objects to authenticated;
   grant usage on schema public, auth to anon, authenticated, service_role;
   grant select on auth.users to service_role;
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;

@@ -2,10 +2,11 @@
 export const AUDIT_KINDS: Record<string, readonly string[]> = {
   auth: ["auth.login", "auth.logout", "auth.link_identity", "auth.password_change"],
   admin: ["admin.grant", "admin.revoke"],
-  settings: ["settings.feature_flag", "settings.brand", "settings.audit", "settings.company_feature"],
+  settings: ["settings.feature_flag", "settings.brand", "settings.audit", "settings.company_feature", "settings.automation"],
   company: ["company.create", "company.update"],
   member: ["member.join_request", "member.join_decide", "member.roster_import", "member.invite_create", "member.invite_redeem", "member.role_grant", "member.role_revoke", "member.end", "member.supervisor"],
   consent: ["consent.privacy"],
+  report: ["report.submit", "report.transition", "report.quick_fix", "report.assign", "report.merge", "report.share", "report.metoo"],
   announcement: ["announcement.publish", "announcement.ack", "announcement.archive", "announcement.comment_hide"],
   audit: ["audit.switches", "audit.export", "audit.purge"],
   db: ["db.memberships", "db.role_assignments", "db.platform_admins", "db.profiles", "db.companies", "db.platform_settings"],

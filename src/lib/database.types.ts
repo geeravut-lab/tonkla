@@ -268,6 +268,30 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_rules: {
+        Row: {
+          enabled: boolean
+          key: string
+          last_count: number | null
+          last_run_at: string | null
+          params: Json
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          last_count?: number | null
+          last_run_at?: string | null
+          params?: Json
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          last_count?: number | null
+          last_run_at?: string | null
+          params?: Json
+        }
+        Relationships: []
+      }
       business_units: {
         Row: {
           id: string
@@ -424,6 +448,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cron_ticks: {
+        Row: {
+          at: string
+          duration_ms: number | null
+          id: number
+          summary: Json
+        }
+        Insert: {
+          at?: string
+          duration_ms?: number | null
+          id?: never
+          summary?: Json
+        }
+        Update: {
+          at?: string
+          duration_ms?: number | null
+          id?: never
+          summary?: Json
+        }
+        Relationships: []
       }
       departments: {
         Row: {
@@ -659,6 +704,7 @@ export type Database = {
           href: string
           id: string
           kind: string
+          params: Json
           read_at: string | null
           title: string
           user_id: string
@@ -670,6 +716,7 @@ export type Database = {
           href?: string
           id?: string
           kind: string
+          params?: Json
           read_at?: string | null
           title: string
           user_id: string
@@ -681,6 +728,7 @@ export type Database = {
           href?: string
           id?: string
           kind?: string
+          params?: Json
           read_at?: string | null
           title?: string
           user_id?: string
@@ -855,6 +903,357 @@ export type Database = {
           },
         ]
       }
+      report_attachments: {
+        Row: {
+          bytes: number
+          created_at: string
+          id: string
+          mime: string
+          report_id: string
+          storage_path: string
+        }
+        Insert: {
+          bytes: number
+          created_at?: string
+          id?: string
+          mime: string
+          report_id: string
+          storage_path: string
+        }
+        Update: {
+          bytes?: number
+          created_at?: string
+          id?: string
+          mime?: string
+          report_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_attachments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_attachments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_categories: {
+        Row: {
+          active: boolean
+          company_id: string
+          default_severity: string
+          id: string
+          key: string
+          name_en: string
+          name_th: string
+        }
+        Insert: {
+          active?: boolean
+          company_id: string
+          default_severity?: string
+          id?: string
+          key: string
+          name_en?: string
+          name_th: string
+        }
+        Update: {
+          active?: boolean
+          company_id?: string
+          default_severity?: string
+          id?: string
+          key?: string
+          name_en?: string
+          name_th?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          report_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          report_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_comments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_comments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_status: string | null
+          id: number
+          note: string
+          report_id: string
+          to_status: string | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: never
+          note?: string
+          report_id: string
+          to_status?: string | null
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: never
+          note?: string
+          report_id?: string
+          to_status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_events_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_events_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_metoo: {
+        Row: {
+          created_at: string
+          report_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          report_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          report_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_metoo_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_metoo_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_metoo_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          category_id: string | null
+          closed_at: string | null
+          company_id: string
+          created_at: string
+          department_id: string | null
+          description: string
+          escalation_level: number
+          first_response_at: string | null
+          id: string
+          impact: string
+          merged_into_id: string | null
+          metoo_count: number
+          owner_id: string
+          proposed_fix: string
+          quick_fix: boolean
+          quick_fix_approved_by: string | null
+          resolution_note: string
+          respond_by: string
+          severity: string
+          shared_at: string | null
+          shared_by: string | null
+          status: string
+          submitter_id: string
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          category_id?: string | null
+          closed_at?: string | null
+          company_id: string
+          created_at?: string
+          department_id?: string | null
+          description?: string
+          escalation_level?: number
+          first_response_at?: string | null
+          id?: string
+          impact?: string
+          merged_into_id?: string | null
+          metoo_count?: number
+          owner_id: string
+          proposed_fix?: string
+          quick_fix?: boolean
+          quick_fix_approved_by?: string | null
+          resolution_note?: string
+          respond_by: string
+          severity?: string
+          shared_at?: string | null
+          shared_by?: string | null
+          status?: string
+          submitter_id: string
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          category_id?: string | null
+          closed_at?: string | null
+          company_id?: string
+          created_at?: string
+          department_id?: string | null
+          description?: string
+          escalation_level?: number
+          first_response_at?: string | null
+          id?: string
+          impact?: string
+          merged_into_id?: string | null
+          metoo_count?: number
+          owner_id?: string
+          proposed_fix?: string
+          quick_fix?: boolean
+          quick_fix_approved_by?: string | null
+          resolution_note?: string
+          respond_by?: string
+          severity?: string
+          shared_at?: string | null
+          shared_by?: string | null
+          status?: string
+          submitter_id?: string
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "report_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_merged_into_id_fkey"
+            columns: ["merged_into_id"]
+            isOneToOne: false
+            referencedRelation: "group_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_merged_into_id_fkey"
+            columns: ["merged_into_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_submitter_id_fkey"
+            columns: ["submitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_assignments: {
         Row: {
           granted_at: string
@@ -964,6 +1363,49 @@ export type Database = {
           },
         ]
       }
+      routing_rules: {
+        Row: {
+          category_id: string
+          company_id: string
+          owner_user_id: string
+          sla_hours: number | null
+        }
+        Insert: {
+          category_id: string
+          company_id: string
+          owner_user_id: string
+          sla_hours?: number | null
+        }
+        Update: {
+          category_id?: string
+          company_id?: string
+          owner_user_id?: string
+          sla_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routing_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "report_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routing_rules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routing_rules_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       directory: {
@@ -995,6 +1437,38 @@ export type Database = {
           },
         ]
       }
+      group_reports: {
+        Row: {
+          category_id: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          id: string | null
+          impact: string | null
+          metoo_count: number | null
+          proposed_fix: string | null
+          severity: string | null
+          shared_at: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "report_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       ack_announcement: { Args: { p_id: string }; Returns: undefined }
@@ -1017,6 +1491,10 @@ export type Database = {
       admin_set_coordinator: {
         Args: { p_company: string; p_email: string }
         Returns: string
+      }
+      admin_set_rule: {
+        Args: { p_enabled: boolean; p_hours: number; p_key: string }
+        Returns: undefined
       }
       admin_update_company: {
         Args: { p_id: string; p_sla: number; p_status: string }
@@ -1068,15 +1546,74 @@ export type Database = {
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       publish_announcement: { Args: { p_id: string }; Returns: number }
       redeem_invitation: { Args: { p_code: string }; Returns: string }
+      report_assign: {
+        Args: { p_id: string; p_owner: string }
+        Returns: undefined
+      }
+      report_merge: {
+        Args: { p_dup: string; p_into: string }
+        Returns: undefined
+      }
+      report_metoo: { Args: { p_id: string }; Returns: undefined }
+      report_quick_fix: {
+        Args: { p_id: string; p_note: string }
+        Returns: undefined
+      }
+      report_set_visibility: {
+        Args: { p_id: string; p_visibility: string }
+        Returns: undefined
+      }
+      report_transition: {
+        Args: { p_id: string; p_note?: string; p_to: string }
+        Returns: undefined
+      }
       request_join: {
         Args: { p_company: string; p_note?: string }
         Returns: string
       }
       revoke_admin: { Args: { p_user: string }; Returns: undefined }
       revoke_role: { Args: { p_id: string }; Returns: undefined }
+      run_tick: { Args: never; Returns: Json }
+      set_category_active: {
+        Args: { p_active: boolean; p_category: string }
+        Returns: undefined
+      }
+      set_routing: {
+        Args: {
+          p_category: string
+          p_company: string
+          p_owner: string
+          p_sla?: number
+        }
+        Returns: undefined
+      }
       set_supervisor: {
         Args: { p_membership: string; p_supervisor: string }
         Returns: undefined
+      }
+      similar_reports: {
+        Args: { p_company: string; p_terms: string[] }
+        Returns: {
+          hits: number
+          id: string
+          metoo_count: number
+          status: string
+          title: string
+        }[]
+      }
+      submit_report: {
+        Args: {
+          p_attachments?: Json
+          p_category: string
+          p_company: string
+          p_description: string
+          p_fix: string
+          p_id: string
+          p_impact: string
+          p_severity: string
+          p_title: string
+        }
+        Returns: string
       }
     }
     Enums: {
