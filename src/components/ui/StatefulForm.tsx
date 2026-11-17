@@ -21,6 +21,7 @@ function renderMessage(msg: string | undefined, t: ReturnType<typeof useT>, fall
   if (msg.startsWith("purged:")) return fmt(t.audit_purged, { n: msg.slice(7) });
   if (msg === "ok") return fallback;
   if (msg === "reported") return t.em_sent;
+  if (msg === "granted") return t.rc_granted;
   if (msg.startsWith("told:")) return fmt(t.ev_cancel_done, { n: msg.slice(5) });
   if (msg.startsWith("wave:")) { const [a, b] = msg.slice(5).split(","); return fmt(t.ro_activate_wave_done, { activated: a ?? 0, skipped: b ?? 0 }); }
   if (msg.startsWith("rejected:")) return fmt(t.prompts_rejected, { reasons: msg.slice(9).split(",").map((r) => (t as Record<string, string>)[`scr_${r}`] ?? r).join(", ") });

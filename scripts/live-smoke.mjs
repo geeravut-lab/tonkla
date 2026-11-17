@@ -163,6 +163,27 @@ begin
   execute 'reset role';
   steps := steps || 'emergency,poll,';
 
+  -- ---- M2.4: points follow adoption only; awards need the right stage
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  n := (select coalesce(sum(points), 0) from public.recognition_points);
+  v := public.submit_idea(null, ca, 'process_improvement', 'smoke idea two', '', '', '', '', null);
+  if (select coalesce(sum(points), 0) from public.recognition_points) <> n then raise exception 'FAIL points for sending'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', carol, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  perform public.idea_transition(v, 'screening', ''); perform public.idea_transition(v, 'evaluating', ''); perform public.idea_transition(v, 'piloting', '');
+  begin perform public.award_grant(v, 'dare_to_try', 'smoke lesson'); raise exception 'FAIL dare_to_try on a running pilot'; exception when others then if sqlerrm like 'FAIL%' then raise; end if; end;
+  perform public.award_grant(v, 'monthly_highlight', 'smoke highlight');
+  execute 'reset role'; perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  if (select coalesce(sum(points), 0) from public.recognition_points) <> n + 25 then raise exception 'FAIL points total %', (select sum(points) from public.recognition_points); end if;
+  execute 'reset role';
+  steps := steps || 'points,awards,';
+
+  -- ---- accepting the privacy notice works for a signed-in user (plain insert; no UPDATE right is needed or given)
+  perform set_config('request.jwt.claims', json_build_object('sub', alice, 'role', 'authenticated')::text, true); execute 'set local role authenticated';
+  insert into public.consents (user_id, kind, version) values (alice, 'privacy', 'smoke-v1');
+  begin insert into public.consents (user_id, kind, version) values (alice, 'privacy', 'smoke-v1') on conflict (user_id, kind, version) do update set version = excluded.version; raise exception 'FAIL consent upsert allowed'; exception when insufficient_privilege then null; end;
+  execute 'reset role';
+  steps := steps || 'consent,';
+
   raise exception 'SMOKE_OK %', steps;
 end
 $smoke$;

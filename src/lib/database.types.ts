@@ -544,6 +544,78 @@ export type Database = {
         }
         Relationships: []
       }
+      awards: {
+        Row: {
+          company_id: string
+          created_at: string
+          granted_by: string
+          id: string
+          idea_id: string
+          kind: string
+          month: string
+          note: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          granted_by: string
+          id?: string
+          idea_id: string
+          kind: string
+          month: string
+          note: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          granted_by?: string
+          id?: string
+          idea_id?: string
+          kind?: string
+          month?: string
+          note?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "awards_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "awards_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "awards_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "awards_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "awards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_units: {
         Row: {
           id: string
@@ -564,6 +636,57 @@ export type Database = {
           sort?: number
         }
         Relationships: []
+      }
+      challenges: {
+        Row: {
+          closes_at: string
+          company_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          goal: string
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          closes_at: string
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string
+          goal?: string
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          closes_at?: string
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          goal?: string
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       companies: {
         Row: {
@@ -1374,6 +1497,7 @@ export type Database = {
       }
       ideas: {
         Row: {
+          challenge_id: string | null
           company_id: string
           created_at: string
           decision_reason: string
@@ -1397,6 +1521,7 @@ export type Database = {
           vote_count: number
         }
         Insert: {
+          challenge_id?: string | null
           company_id: string
           created_at?: string
           decision_reason?: string
@@ -1420,6 +1545,7 @@ export type Database = {
           vote_count?: number
         }
         Update: {
+          challenge_id?: string | null
           company_id?: string
           created_at?: string
           decision_reason?: string
@@ -1443,6 +1569,13 @@ export type Database = {
           vote_count?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "ideas_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ideas_company_id_fkey"
             columns: ["company_id"]
@@ -2349,6 +2482,90 @@ export type Database = {
           },
         ]
       }
+      recognition_points: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: number
+          idea_id: string
+          points: number
+          reason: string
+          ref: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: never
+          idea_id: string
+          points: number
+          reason: string
+          ref?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: never
+          idea_id?: string
+          points?: number
+          reason?: string
+          ref?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recognition_points_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recognition_points_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "group_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recognition_points_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recognition_points_reason_fkey"
+            columns: ["reason"]
+            isOneToOne: false
+            referencedRelation: "recognition_rules"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "recognition_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recognition_rules: {
+        Row: {
+          key: string
+          points: number
+        }
+        Insert: {
+          key: string
+          points: number
+        }
+        Update: {
+          key?: string
+          points?: number
+        }
+        Relationships: []
+      }
       report_attachments: {
         Row: {
           bytes: number
@@ -3044,6 +3261,10 @@ export type Database = {
         Args: { p_company: string; p_email: string }
         Returns: string
       }
+      admin_set_points: {
+        Args: { p_key: string; p_points: number }
+        Returns: undefined
+      }
       admin_set_rule: {
         Args: { p_enabled: boolean; p_hours: number; p_key: string }
         Returns: undefined
@@ -3095,7 +3316,36 @@ export type Database = {
       anon_take_token: { Args: never; Returns: boolean }
       anonymize_user: { Args: { p_user: string }; Returns: undefined }
       archive_announcement: { Args: { p_id: string }; Returns: undefined }
+      award_grant: {
+        Args: { p_idea: string; p_kind: string; p_note: string }
+        Returns: string
+      }
       can_coordinate: { Args: { p_company: string }; Returns: boolean }
+      challenge_close: { Args: { p_id: string }; Returns: undefined }
+      challenge_create: {
+        Args: {
+          p_closes: string
+          p_company: string
+          p_description: string
+          p_goal: string
+          p_title: string
+        }
+        Returns: string
+      }
+      challenges_list: {
+        Args: never
+        Returns: {
+          closes_at: string
+          company_id: string
+          description: string
+          goal: string
+          id: string
+          ideas: number
+          manage: boolean
+          status: string
+          title: string
+        }[]
+      }
       claim_roster: { Args: never; Returns: number }
       company_dashboard: {
         Args: { p_company: string; p_days?: number }
@@ -3191,6 +3441,10 @@ export type Database = {
       }
       idea_assign: {
         Args: { p_id: string; p_owner: string }
+        Returns: undefined
+      }
+      idea_link_challenge: {
+        Args: { p_challenge: string; p_idea: string }
         Returns: undefined
       }
       idea_score: {

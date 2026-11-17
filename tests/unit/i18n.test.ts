@@ -12,11 +12,12 @@ import * as password from "@/i18n/dict/password";
 import * as rollout from "@/i18n/dict/rollout";
 import * as anon from "@/i18n/dict/anon";
 import * as comm2 from "@/i18n/dict/comm2";
+import * as recog from "@/i18n/dict/recog";
 import { dictFor, errorText, fmt } from "@/i18n";
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
 
-const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2 };
+const MODULES = { core, identity, admin, comm, reports, ideas, messaging, dash, ai, password, rollout, anon, comm2, recog };
 
 describe("dictionary", () => {
   it("has no key defined in two modules", () => {
@@ -43,5 +44,14 @@ describe("dictionary", () => {
     expect(errorText("err_forbidden", t)).toBe(t.err_forbidden);
     expect(errorText("boom", t)).toBe(t.err_generic);
     expect(errorText(undefined, t)).toBe(t.err_generic);
+  });
+});
+
+describe("dictionary modules do not collide", () => {
+  it("no key is defined in two modules (a clash silently breaks the combined type)", () => {
+    const seen = new Map<string, string>();
+    const clashes: string[] = [];
+    for (const [name, m] of Object.entries(MODULES)) for (const k of Object.keys(m.th)) { if (seen.has(k)) clashes.push(`${k}: ${seen.get(k)} / ${name}`); else seen.set(k, name); }
+    expect(clashes).toEqual([]);
   });
 });

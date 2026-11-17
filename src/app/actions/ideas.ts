@@ -7,7 +7,7 @@ import { requireActive } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/server/audit";
 import { guarded, str } from "@/server/action";
-import { assertFeature } from "@/server/features";
+import { assertFeature, featureEnabled } from "@/server/features";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const uuid = (v: string) => {
@@ -32,6 +32,12 @@ export async function submitIdea(_p: ActionState, fd: FormData): Promise<ActionS
     });
     if (error) throw error;
     await audit({ by: s.userId, action: "idea.submit", entity: "ideas", entityId: String(data), companyId: company, detail: { type } });
+    const challenge = str(fd, "challenge", 40);
+    if (UUID_RE.test(challenge) && (await featureEnabled("challenges", company))) {
+      // the idea is already saved: a challenge that closed in the meantime must not lose it
+      const link = await sb.rpc("idea_link_challenge", { p_idea: String(data), p_challenge: challenge });
+      if (link.error) console.error("challenge link skipped", link.error.message);
+    }
     revalidatePath("/ideas");
     to = `/ideas/${data}?sent=1`;
   });

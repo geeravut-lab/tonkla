@@ -10,6 +10,8 @@ export const AUDIT_KINDS: Record<string, readonly string[]> = {
   qa: ["qa.session", "qa.close", "qa.answer", "qa.hide"],
   event: ["event.create", "event.cancel"],
   poll: ["poll.create", "poll.close"],
+  challenge: ["challenge.create", "challenge.close"],
+  recognition: ["recognition.award", "recognition.rules"],
   anon: ["anon.status", "anon.reply", "anon.note", "anon.handler"],
   ai: ["ai.keys", "ai.route", "ai.test", "ai.prompt_save", "ai.prompt_clear"],
   privacy: ["privacy.request", "privacy.export", "privacy.anonymize", "privacy.decide"],

@@ -9,6 +9,7 @@ const PARENTS: readonly { pattern: RegExp; parent: string; label: DictKey }[] = 
   { pattern: /^\/qa\/[^/]+$/, parent: "/qa", label: "nav_qa" },
   { pattern: /^\/events\/[^/]+$/, parent: "/events", label: "nav_events" },
   { pattern: /^\/polls\/[^/]+$/, parent: "/polls", label: "nav_polls" },
+  { pattern: /^\/challenges\/[^/]+$/, parent: "/challenges", label: "nav_challenges" },
   { pattern: /^\/account\/[^/]+$/, parent: "/account", label: "nav_account" },
   { pattern: /^\/admin\/[^/]+$/, parent: "/admin", label: "nav_admin" },
 ];
