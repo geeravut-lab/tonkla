@@ -101,7 +101,7 @@ export default async function GroupDashboardPage({ searchParams }: { searchParam
       </div>
       {d ? (
         <>
-          <Block title={t.gd_totals} rows={[total]} nameOf={() => fmt(t.gd_companies_n, { n: total.companies ?? 0 })} t={t} perCompany={false} />
+          <Block title={t.gd_totals} rows={[total]} nameOf={() => t.gd_totals} t={t} perCompany={false} />
           <Block title={t.gd_units} rows={d.units} nameOf={(r) => r.bu_name || t.gd_no_unit} t={t} perCompany={false} />
           <div className="flex flex-col gap-2">
             <h2 className="text-xl font-bold">{t.gd_recurring}</h2>
