@@ -43,7 +43,8 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const liked = likes.some((l) => l.user_id === s.userId);
   const kind = (t as Record<string, string>)[`news_kind_${a.kind}`] ?? a.kind;
   const when = (iso: string) => new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" });
-  const author = (a.profiles as unknown as { display_name: string } | null)?.display_name ?? "";
+  // people of other companies cannot read the profile of a central-team author: say "group level" instead of leaving it blank
+  const author = (a.profiles as unknown as { display_name: string } | null)?.display_name || (a.company_id ? "" : t.news_group_level);
   const notAcked = readership.filter((r) => !r.acked_at);
 
   return (
