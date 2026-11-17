@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { CODE_RE, buildLineMessage, generateCode, hashCode, nextAttemptDelayMinutes, normalizeCode, pushLine, quotaAllows, safeAppUrl, verifySignature } from "@/server/line-core";
+import { CODE_RE, buildLineMessage, extractCode, generateCode, hashCode, nextAttemptDelayMinutes, normalizeCode, pushLine, quotaAllows, safeAppUrl, verifySignature } from "@/server/line-core";
 
 const cfg = { secret: "s3cret", token: "tok", basicId: "@abc" };
 const sign = (body: string) => createHmac("sha256", cfg.secret).update(body).digest("base64");
@@ -80,5 +80,14 @@ describe("push result mapping", () => {
     expect(quotaAllows(940, 1000, 100, false)).toBe(false);
     expect(quotaAllows(940, 1000, 100, true)).toBe(true);
     expect(quotaAllows(1000, 1000, 100, true)).toBe(false);
+  });
+});
+
+describe("what a person may type in the LINE chat", () => {
+  it("accepts the bare code, lower case, spaces and the LINK prefix", () => {
+    for (const t of ["ABCD2345", "abcd2345", " abcd 2345 ", "LINK ABCD2345", "link abcd2345"]) expect(extractCode(t), t).toBe("ABCD2345");
+  });
+  it("rejects look-alike characters, wrong lengths and other sentences", () => {
+    for (const t of ["ABCD234", "ABCD23456", "ABCD0345", "ABCDI345", "สวัสดี", "link", "LINK ABCD2345 please", ""]) expect(extractCode(t), t).toBeNull();
   });
 });

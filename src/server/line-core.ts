@@ -25,6 +25,13 @@ export function generateCode(): string {
   return c;
 }
 
+/** "ABCD2345", "abcd 2345" and "LINK ABCD2345" are all accepted; anything else is not a code. */
+export function extractCode(text: string): string | null {
+  const t = text.trim().toUpperCase();
+  const m = t.match(/^(?:LINK\s+)?([A-Z2-9\s]{8,12})$/);
+  const c = m?.[1]?.replace(/\s+/g, "") ?? "";
+  return CODE_RE.test(c) ? c : null;
+}
 export const normalizeCode = (text: string) => text.trim().toUpperCase().replace(/\s+/g, "");
 /** Only a keyed hash of the code is stored. */
 export const hashCode = (code: string, secret: string) => createHmac("sha256", secret).update(normalizeCode(code)).digest("hex");

@@ -5,7 +5,7 @@ import { APP_URL } from "@/lib/env";
 import { audit } from "@/server/audit";
 import { brandedDict } from "@/server/brand";
 import {
-  CODE_RE, URGENT_KINDS, buildLineMessage, generateCode, hashCode, nextAttemptDelayMinutes, normalizeCode, pushLine, quotaAllows, replyLine, safeAppUrl,
+  URGENT_KINDS, buildLineMessage, extractCode, generateCode, hashCode, nextAttemptDelayMinutes, pushLine, quotaAllows, replyLine, safeAppUrl,
   type LineConfig, type PushResult,
 } from "@/server/line-core";
 import { flushEmail } from "@/server/email";
@@ -30,9 +30,15 @@ export const getMessaging = async (): Promise<Messaging> => ({ ...MESSAGING_DEFA
 export async function startLineLink(userId: string): Promise<{ code: string; expiresAt: string; basicId: string }> {
   const cfg = await getLineConfig();
   if (!cfg) throw new Error("err_line_not_configured");
+  const admin = supabaseAdmin();
+  // at most 10 codes an hour per person (a code is also a guessing target)
+  const hour = new Date(Date.now() - 3600_000).toISOString();
+  const asked = await admin.from("line_code_requests").select("id", { count: "exact", head: true }).eq("user_id", userId).gte("at", hour);
+  if ((asked.count ?? 0) >= 10) throw new Error("err_too_many");
+  await admin.from("line_code_requests").insert({ user_id: userId });
+  await admin.from("line_code_requests").delete().lt("at", new Date(Date.now() - 86_400_000).toISOString());
   const code = generateCode();
   const expiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
-  const admin = supabaseAdmin();
   const cur = await admin.from("notification_channels").select("id, status, address").eq("user_id", userId).eq("channel", "line").maybeSingle();
   const row = { code_hash: hashCode(code, cfg.secret), code_expires_at: expiresAt, last_error: null };
   if (cur.data) {
@@ -47,7 +53,8 @@ export async function startLineLink(userId: string): Promise<{ code: string; exp
 }
 
 const HELP = "Tonkla: พิมพ์รหัส 8 ตัวที่แสดงในหน้า “แจ้งเตือน LINE” ของแอป · Send the 8-character code shown on the LINE notifications page of the app.";
-const OK = "✓ เชื่อมต่อ LINE สำเร็จ ต่อไปนี้คุณจะได้รับแจ้งเตือนที่นี่ · Connected. You will now receive notifications here.";
+const OK_TH = "✓ เชื่อมต่อ LINE สำเร็จ ต่อไปนี้คุณจะได้รับแจ้งเตือนจากต้นกล้าที่นี่";
+const OK_EN = "✓ Connected. You will now receive Tonkla notifications here.";
 const WRONG = "รหัสไม่ถูกต้องหรือหมดอายุ ขอรหัสใหม่ในแอป · The code is wrong or expired. Request a new one in the app.";
 const TAKEN = "บัญชี LINE นี้ถูกผูกกับผู้ใช้อื่นแล้ว · This LINE account is already linked to another user.";
 
@@ -70,8 +77,8 @@ export async function handleLineEvents(events: LineEvent[], cfg: LineConfig): Pr
         continue;
       }
       if (ev.type !== "message" || ev.message?.type !== "text" || !ev.replyToken) continue;
-      const text = normalizeCode(ev.message.text ?? "");
-      if (!CODE_RE.test(text)) {
+      const text = extractCode(ev.message.text ?? "");
+      if (!text) {
         await replyLine(cfg, ev.replyToken, HELP, LINE_API);
         continue;
       }
@@ -96,7 +103,8 @@ export async function handleLineEvents(events: LineEvent[], cfg: LineConfig): Pr
         continue;
       }
       await audit({ by: found.data.user_id, action: "auth.link_identity", entity: "notification_channels", entityId: found.data.id, detail: { provider: "line_notify" } });
-      await replyLine(cfg, ev.replyToken, OK, LINE_API);
+      const owner = await admin.from("profiles").select("locale").eq("id", found.data.user_id).maybeSingle();
+      await replyLine(cfg, ev.replyToken, owner.data?.locale === "en" ? OK_EN : OK_TH, LINE_API); // the owner's language, not both
     } catch (e) {
       console.error("line event failed", ev.type, (e as Error).message);
     }
